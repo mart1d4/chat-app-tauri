@@ -6,5 +6,6 @@
 **.DS_Store
 **.vercel
 **.git
+**/out
 .vercel
 .env.local

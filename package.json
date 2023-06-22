@@ -13,15 +13,11 @@
         "tauri": "tauri"
     },
     "dependencies": {
-        "@prisma/client": "^4.16.0",
         "@uploadcare/upload-client": "^6.6.1",
-        "@vercel/analytics": "^1.0.1",
-        "bcryptjs": "^2.4.3",
         "bufferutil": "^4.0.7",
         "debug": "^4.3.4",
         "encoding": "^0.1.13",
         "framer-motion": "^10.12.2",
-        "jose": "^4.14.0",
         "magic-bytes.js": "^1.0.14",
         "next": "^13.4.7",
         "pusher": "^5.1.3",
@@ -35,24 +31,27 @@
         "utf-8-validate": "^6.0.3",
         "uuid": "^9.0.0"
     },
-    "name": "chat-app",
-    "version": "0.4.0",
+    "name": "chat-app-tauri",
+    "version": "0.1.0",
     "main": "index.ts",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/mart1d4/chat-app.git"
+        "url": "git+https://github.com/mart1d4/chat-app-tauri.git"
     },
     "keywords": [
         "chat",
         "app",
         "next",
         "react",
+        "tauri",
+        "rust",
         "socket",
-        "socket.io",
+        "pusher",
         "websocket",
         "mongodb",
-        "mongoose",
-        "aws"
+        "prisma",
+        "typescript",
+        "uploadcare"
     ],
     "license": "MIT",
     "bugs": {
@@ -61,12 +60,9 @@
     "homepage": "https://chat-app.mart1d4.com/",
     "devDependencies": {
         "@tauri-apps/cli": "^1.4.0",
-        "@types/bcryptjs": "^2.4.2",
-        "@types/cookie": "^0.5.1",
         "@types/node": "20.1.3",
         "@types/react": "18.0.37",
         "@types/uuid": "^9.0.1",
-        "prisma": "^4.16.0",
         "typescript": "5.0.4"
     }
 }

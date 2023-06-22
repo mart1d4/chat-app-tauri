@@ -1,0 +1,10 @@
+**/node_modules
+**.idea
+**.vscode
+**.next
+**.env
+**.DS_Store
+**.vercel
+**.git
+.vercel
+.env.local

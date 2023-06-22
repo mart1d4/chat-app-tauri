@@ -1,0 +1,27 @@
+.container {
+    position: relative;
+    display: flex;
+    border-radius: 50%;
+}
+
+.container > img {
+    border-radius: 50%;
+    object-fit: contain;
+    min-width: 100%;
+    min-height: 100%;
+    user-select: none;
+    pointer-events: none;
+}
+
+.svg {
+    contain: paint;
+    pointer-events: none;
+}
+
+.svg > * {
+    pointer-events: none;
+}
+
+.svg rect {
+    pointer-events: all;
+}

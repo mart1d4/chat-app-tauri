@@ -11,71 +11,23 @@ type MessageProps = {
     message: MessageType;
     large?: boolean;
     last?: boolean;
-    edit?: {
-        messageId: string;
-        content: string;
-    } | null;
-    setEdit?: React.Dispatch<
-        React.SetStateAction<{
-            messageId: string;
-            content: string;
-        } | null>
-    >;
-    reply?: {
-        channelId: string;
-        messageId: string;
-        author: CleanOtherUserType;
-    } | null;
-    setReply?: React.Dispatch<
-        React.SetStateAction<{
-            channelId: string;
-            messageId: string;
-            author: CleanOtherUserType;
-        } | null>
-    >;
+    edit?: MessageEditObject;
+    setEdit?: React.Dispatch<React.SetStateAction<MessageEditObject>>;
+    reply?: MessageReplyObject;
+    setReply?: React.Dispatch<React.SetStateAction<MessageReplyObject>>;
     noInteraction?: boolean;
 };
 
-const Message = ({
-    message,
-    large,
-    edit,
-    setEdit,
-    reply,
-    setReply,
-    noInteraction,
-}: MessageProps) => {
+const Message = ({ message, large, edit, setEdit, reply, setReply, noInteraction }: MessageProps) => {
     // States
     const [hover, setHover] = useState<boolean>(false);
     const [shift, setShift] = useState<boolean>(false);
-    const [editContent, setEditContent] = useState<string>(edit?.content ?? message.content);
+    const [editContent, setEditContent] = useState<string>(edit?.content || message.content);
 
     // Hooks
     const { menu, fixedLayer, setFixedLayer, setPopup }: any = useContextHook({ context: 'layer' });
     const { setTooltip }: any = useContextHook({ context: 'tooltip' });
     const { auth }: any = useContextHook({ context: 'auth' });
-
-    // Refs
-    const userImageReplyRef = useRef(null);
-    const userImageRef = useRef(null);
-
-    // useEffect(() => {
-    //     const notifications = auth.user.notifications.map((notification: any) => {
-    //         if (notification.channel === message.channelId[0]) {
-    //             return { ...notification, count: 0 };
-    //         }
-
-    //         return notification;
-    //     });
-
-    //     setAuth({
-    //         ...auth,
-    //         user: {
-    //             ...auth.user,
-    //             notifications,
-    //         },
-    //     });
-    // }, []);
 
     // Effects
 
@@ -85,13 +37,13 @@ const Message = ({
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
                 if (edit) {
-                    setEdit(null);
-                    setLocalStorage({ edit: null });
+                    setEdit({});
+                    setLocalStorage({ edit: {} });
                 }
 
                 if (reply) {
-                    setReply(null);
-                    setLocalStorage({ reply: null });
+                    setReply({});
+                    setLocalStorage({ reply: {} });
                 }
             } else if (e.key === 'Enter' && e.shiftKey === false) {
                 if (!edit || edit?.messageId !== message.id) return;
@@ -183,16 +135,16 @@ const Message = ({
         const content = trimMessage(editContent);
 
         if (content.length === 0 || content.length > 4000 || content === message.content) {
-            setEdit(null);
-            setLocalStorage({ edit: null });
+            setEdit({});
+            setLocalStorage({ edit: {} });
             return;
         }
 
         try {
             await editMessage(auth.accessToken, message, content);
 
-            setEdit(null);
-            setLocalStorage({ edit: null });
+            setEdit({});
+            setLocalStorage({ edit: {} });
         } catch (error) {
             console.error(error);
         }
@@ -288,8 +240,7 @@ const Message = ({
                     });
                 }}
                 style={{
-                    backgroundColor:
-                        fixedLayer?.message?.id === message.id ? 'var(--background-hover-4)' : '',
+                    backgroundColor: fixedLayer?.message?.id === message.id ? 'var(--background-hover-4)' : '',
                 }}
             >
                 {(hover || fixedLayer?.message?.id === message?.id) && (
@@ -337,9 +288,7 @@ const Message = ({
                                 }
                                 onMouseLeave={() => setTooltip(null)}
                             >
-                                <span style={{ userSelect: 'text' }}>
-                                    {getMidDate(message.createdAt)}
-                                </span>
+                                <span style={{ userSelect: 'text' }}>{getMidDate(message.createdAt)}</span>
                             </span>
                         </div>
                     </div>
@@ -386,20 +335,19 @@ const Message = ({
                         : '',
             }}
         >
-            {(hover || fixedLayer?.message?.id === message?.id) &&
-                edit?.messageId !== message.id && (
-                    <MessageMenu
-                        message={message}
-                        large={large}
-                        functions={{
-                            deletePopup,
-                            pinPopup,
-                            unpinPopup,
-                            editMessageState,
-                            replyToMessageState,
-                        }}
-                    />
-                )}
+            {(hover || fixedLayer?.message?.id === message?.id) && edit?.messageId !== message.id && (
+                <MessageMenu
+                    message={message}
+                    large={large}
+                    functions={{
+                        deletePopup,
+                        pinPopup,
+                        unpinPopup,
+                        editMessageState,
+                        replyToMessageState,
+                    }}
+                />
+            )}
 
             {large || message.type === 'REPLY' || noInteraction ? (
                 <div className={styles.messagelarge}>
@@ -594,14 +542,13 @@ const Message = ({
                                     <span
                                         onClick={() => {
                                             if (!setEdit) return;
-                                            setEdit(null);
-                                            setLocalStorage({ edit: null });
+                                            setEdit({});
+                                            setLocalStorage({ edit: {} });
                                         }}
                                     >
                                         cancel{' '}
                                     </span>
-                                    • enter to{' '}
-                                    <span onClick={() => sendEditedMessage()}>save </span>
+                                    • enter to <span onClick={() => sendEditedMessage()}>save </span>
                                 </div>
                             </>
                         ) : (
@@ -671,14 +618,13 @@ const Message = ({
                                     <span
                                         onClick={() => {
                                             if (!setEdit) return;
-                                            setEdit(null);
-                                            setLocalStorage({ edit: null });
+                                            setEdit({});
+                                            setLocalStorage({ edit: {} });
                                         }}
                                     >
                                         cancel{' '}
                                     </span>
-                                    • enter to{' '}
-                                    <span onClick={() => sendEditedMessage()}>save </span>
+                                    • enter to <span onClick={() => sendEditedMessage()}>save </span>
                                 </div>
                             </>
                         ) : (

@@ -1,19 +1,19 @@
 'use client';
 
-import { useState, useRef, useMemo, useEffect, ReactElement } from 'react';
+import { useState, useMemo, useEffect, ReactElement } from 'react';
 import { Icon, Avatar } from '@/app/app-components';
 import useContextHook from '@/hooks/useContextHook';
 import styles from './AppHeader.module.css';
 import { v4 as uuidv4 } from 'uuid';
 
-const AppHeader = ({ channel }: { channel?: ChannelType }): ReactElement => {
+const AppHeader = ({ channel }: { channel?: ChannelType | null }): ReactElement => {
     const [friend, setFriend] = useState<undefined | CleanOtherUserType>();
     const [widthLimitPassed, setWidthLimitPassed] = useState<boolean>(false);
 
-    const { auth }: any = useContextHook({ context: 'auth' });
-    const { setTooltip }: any = useContextHook({ context: 'tooltip' });
+    const { setUserProfile, setFixedLayer }: any = useContextHook({ context: 'layer' });
     const { userSettings, setUserSettings }: any = useContextHook({ context: 'settings' });
-    const { setUserProfile, fixedLayer, setFixedLayer }: any = useContextHook({ context: 'layer' });
+    const { setTooltip }: any = useContextHook({ context: 'tooltip' });
+    const { auth }: any = useContextHook({ context: 'auth' });
 
     const requestNumber: number = auth.user.requestReceivedIds.length;
 
@@ -21,9 +21,7 @@ const AppHeader = ({ channel }: { channel?: ChannelType }): ReactElement => {
         if (!channel) return;
 
         if (channel.type === 'DM') {
-            setFriend(
-                channel.recipients.find((user: CleanOtherUserType) => user.id !== auth.user.id)
-            );
+            setFriend(channel.recipients.find((user: CleanOtherUserType) => user.id !== auth.user.id));
         }
     }, [channel]);
 
@@ -53,58 +51,63 @@ const AppHeader = ({ channel }: { channel?: ChannelType }): ReactElement => {
         { name: 'Add Friend', func: 'add' },
     ];
 
-    const toolbarItems = channel
-        ? [
-              { name: 'Start Voice Call', icon: 'call', func: () => {} },
-              { name: 'Start Video Call', icon: 'video', func: () => {} },
-              {
-                  name: 'Pinned Messages',
-                  icon: 'pin',
-                  func: (e: MouseEvent) => {
-                      setFixedLayer({
-                          type: 'popout',
-                          element: e.currentTarget,
-                          firstSide: 'bottom',
-                          secondSide: 'left',
-                          gap: 10,
-                          channel: channel,
-                          pinned: true,
-                      });
+    const toolbarItems =
+        typeof channel !== 'undefined'
+            ? [
+                  { name: 'Start Voice Call', icon: 'call', func: () => {} },
+                  { name: 'Start Video Call', icon: 'video', func: () => {} },
+                  {
+                      name: 'Pinned Messages',
+                      icon: 'pin',
+                      func: (e: MouseEvent) => {
+                          if (!channel) return;
+                          setFixedLayer({
+                              type: 'popout',
+                              element: e.currentTarget,
+                              firstSide: 'bottom',
+                              secondSide: 'left',
+                              gap: 10,
+                              channel: channel,
+                              pinned: true,
+                          });
+                      },
                   },
-              },
-              {
-                  name: 'Add Friends to DM',
-                  icon: 'addUser',
-                  func: (e: MouseEvent) => {
-                      setFixedLayer({
-                          type: 'popout',
-                          element: e.currentTarget,
-                          gap: 10,
-                          firstSide: 'bottom',
-                          secondSide: 'right',
-                          channel: channel,
-                      });
+                  {
+                      name: 'Add Friends to DM',
+                      icon: 'addUser',
+                      func: (e: MouseEvent) => {
+                          if (!channel) return;
+                          setFixedLayer({
+                              type: 'popout',
+                              element: e.currentTarget,
+                              gap: 10,
+                              firstSide: 'bottom',
+                              secondSide: 'right',
+                              channel: channel,
+                          });
+                      },
                   },
-              },
-              {
-                  name:
-                      userSettings.showUsers && widthLimitPassed
-                          ? 'Hide User Profile'
-                          : `Show ${channel.type === 'DM' ? ' User Profile' : 'Member List'}`,
-                  icon: channel?.type === 'DM' ? 'userProfile' : 'memberList',
-                  active: userSettings.showUsers,
-                  disabled: widthLimitPassed === false,
-                  func: () =>
-                      setUserSettings({ ...userSettings, showUsers: !userSettings?.showUsers }),
-              },
-          ]
-        : [{ name: 'New Group DM', icon: 'newDM', func: () => {} }];
+                  {
+                      name:
+                          userSettings.showUsers && widthLimitPassed
+                              ? 'Hide User Profile'
+                              : `Show ${channel?.type === 'DM' ? ' User Profile' : 'Member List'}`,
+                      icon: channel?.type === 'DM' ? 'userProfile' : 'memberList',
+                      active: userSettings.showUsers,
+                      disabled: widthLimitPassed === false,
+                      func: () => {
+                          if (!channel) return;
+                          setUserSettings({ ...userSettings, showUsers: !userSettings?.showUsers });
+                      },
+                  },
+              ]
+            : [{ name: 'New Group DM', icon: 'newDM', func: () => {} }];
 
     return useMemo(
         () => (
             <div className={styles.header}>
                 <div className={styles.nav}>
-                    {!channel ? (
+                    {typeof channel === 'undefined' ? (
                         <>
                             <div className={styles.icon}>
                                 <Icon
@@ -146,19 +149,19 @@ const AppHeader = ({ channel }: { channel?: ChannelType }): ReactElement => {
                         <>
                             <div className={styles.icon}>
                                 <Avatar
-                                    src={channel.icon as string}
-                                    alt={channel.name}
+                                    src={channel?.icon || '/assets/blurs/avatar.png'}
+                                    relativeSrc={!channel}
+                                    alt={channel?.name || 'User'}
                                     size={24}
-                                    status={channel.type === 'DM' ? friend?.status : undefined}
+                                    status={channel?.type === 'DM' ? friend?.status : undefined}
                                 />
                             </div>
 
                             <h1
                                 className={styles.titleFriend}
                                 onMouseEnter={(e) => {
-                                    if (channel.type !== 'DM') return;
                                     setTooltip({
-                                        text: channel.name,
+                                        text: channel?.name || '',
                                         element: e.currentTarget,
                                         position: 'bottom',
                                         gap: 5,
@@ -166,11 +169,11 @@ const AppHeader = ({ channel }: { channel?: ChannelType }): ReactElement => {
                                 }}
                                 onMouseLeave={() => setTooltip(null)}
                                 onClick={() => {
-                                    if (channel.type !== 'DM') return;
+                                    if (channel?.type !== 'DM') return;
                                     setUserProfile({ user: friend });
                                 }}
                             >
-                                {channel.name}
+                                {channel?.name || ''}
                             </h1>
                         </>
                     )}
@@ -184,7 +187,7 @@ const AppHeader = ({ channel }: { channel?: ChannelType }): ReactElement => {
                         />
                     ))}
 
-                    {!channel ? (
+                    {typeof channel === 'undefined' ? (
                         <div className={styles.divider} />
                     ) : (
                         <div className={styles.search}>
@@ -250,9 +253,7 @@ const ToolbarIcon = ({ item }: any) => {
 
     return (
         <div
-            className={
-                item.disabled ? styles.toolbarIcon + ' ' + styles.disabled : styles.toolbarIcon
-            }
+            className={item.disabled ? styles.toolbarIcon + ' ' + styles.disabled : styles.toolbarIcon}
             onMouseEnter={(e) => {
                 if (fixedLayer?.element === e.currentTarget) return;
                 setTooltip({

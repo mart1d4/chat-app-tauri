@@ -37,7 +37,7 @@ const UserItem = ({ special, channel }: Props): ReactElement => {
                 href={`/channels/me`}
                 className={styles.liContainer}
                 style={{
-                    backgroundColor: pathname === '/channels/me' ? 'var(--background-5)' : '',
+                    backgroundColor: pathname === '/channels/me' ? 'var(--background-4)' : '',
                     color: pathname === '/channels/me' ? 'var(--foreground-1)' : '',
                 }}
             >
@@ -47,11 +47,7 @@ const UserItem = ({ special, channel }: Props): ReactElement => {
                             <div className={styles.layoutAvatar}>
                                 <Icon
                                     name='friends'
-                                    fill={
-                                        pathname === '/channels/@me'
-                                            ? 'var(--foreground-1)'
-                                            : 'var(--foreground-3)'
-                                    }
+                                    fill={pathname === '/channels/@me' ? 'var(--foreground-1)' : 'var(--foreground-3)'}
                                 />
                             </div>
 
@@ -63,9 +59,7 @@ const UserItem = ({ special, channel }: Props): ReactElement => {
                         </div>
 
                         {auth.user.requestReceivedIds.length > 0 && (
-                            <div className={styles.friendsPending}>
-                                {auth.user.requestReceivedIds.length}
-                            </div>
+                            <div className={styles.friendsPending}>{auth.user.requestReceivedIds.length}</div>
                         )}
                     </div>
                 </div>
@@ -90,7 +84,7 @@ const UserItem = ({ special, channel }: Props): ReactElement => {
                         });
                     }}
                     style={{
-                        backgroundColor: pathname.includes(channel.id) ? 'var(--background-5)' : '',
+                        backgroundColor: pathname.includes(channel.id) ? 'var(--background-4)' : '',
                         color: pathname.includes(channel.id) ? 'var(--foreground-1)' : '',
                     }}
                 >
@@ -120,9 +114,7 @@ const UserItem = ({ special, channel }: Props): ReactElement => {
                                 <div className={styles.layoutContent}>
                                     <div className={styles.contentName}>
                                         <div className={styles.nameWrapper}>
-                                            {channel.type === 'GROUP_DM'
-                                                ? channel.name
-                                                : user?.username}
+                                            {channel.type === 'GROUP_DM' ? channel.name : user?.username}
                                         </div>
                                     </div>
 

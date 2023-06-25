@@ -9,15 +9,7 @@ import filetypeinfo from 'magic-bytes.js';
 import { motion } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
 
-const TextArea = ({
-    channel,
-    friend,
-    editContent,
-    setEditContent,
-    reply,
-    setReply,
-    setMessages,
-}: any) => {
+const TextArea = ({ channel, friend, editContent, setEditContent, reply, setReply, setMessages }: any) => {
     const [message, setMessage] = useState<string>('');
     const [files, setFiles] = useState<File[]>([]);
     const [usersTyping, setUsersTyping] = useState<
@@ -117,9 +109,7 @@ const TextArea = ({
             if (!response.ok) {
                 setMessages((messages: MessageType[]) =>
                     messages.map((message) =>
-                        message.id === tempId
-                            ? { ...message, error: true, waiting: false }
-                            : message
+                        message.id === tempId ? { ...message, error: true, waiting: false } : message
                     )
                 );
                 return;
@@ -142,9 +132,7 @@ const TextArea = ({
 
             // Stop message from being marked as waiting
             setMessages((messages: MessageType[]) =>
-                messages.map((message) =>
-                    message.id === tempId ? { ...message, waiting: false } : message
-                )
+                messages.map((message) => (message.id === tempId ? { ...message, waiting: false } : message))
             );
         } catch (err) {
             console.error(err);
@@ -181,7 +169,7 @@ const TextArea = ({
                 <div>
                     {message.length === 0 && !editContent && (
                         <div className={styles.textContainerPlaceholder}>
-                            Message {friend ? `@${friend.username}` : channel?.name}
+                            Message {!channel ? '' : friend ? `@${friend.username}` : channel?.name}
                         </div>
                     )}
 
@@ -193,9 +181,7 @@ const TextArea = ({
                         aria-haspopup='listbox'
                         aria-invalid='false'
                         aria-label={
-                            editContent
-                                ? 'Edit Message'
-                                : `Message ${friend ? `@${friend.username}` : channel?.name}`
+                            editContent ? 'Edit Message' : `Message ${friend ? `@${friend.username}` : channel?.name}`
                         }
                         aria-multiline='true'
                         aria-required='true'
@@ -205,6 +191,7 @@ const TextArea = ({
                         onDragStart={() => false}
                         onDrop={() => false}
                         onInput={(e) => {
+                            if (!channel) return;
                             const input = e.target as HTMLDivElement;
                             const text = input.innerText.toString();
 
@@ -213,14 +200,10 @@ const TextArea = ({
                                 localStorage.setItem(
                                     `channel-${channel.id}`,
                                     JSON.stringify({
-                                        ...JSON.parse(
-                                            localStorage.getItem(`channel-${channel.id}`) || '{}'
-                                        ),
+                                        ...JSON.parse(localStorage.getItem(`channel-${channel.id}`) || '{}'),
                                         editContent: {
-                                            ...JSON.parse(
-                                                localStorage.getItem(`channel-${channel.id}`) ||
-                                                    '{}'
-                                            ).editContent,
+                                            ...JSON.parse(localStorage.getItem(`channel-${channel.id}`) || '{}')
+                                                .editContent,
                                             content: text,
                                         },
                                     })
@@ -230,6 +213,7 @@ const TextArea = ({
                             }
                         }}
                         onPaste={(e) => {
+                            if (!channel) return;
                             e.preventDefault();
 
                             // Get where the cursor is to insert the text at the right place
@@ -244,8 +228,7 @@ const TextArea = ({
                             // Add text to the div at the right place
                             const input = e.target as HTMLDivElement;
                             const currentText = input.innerText.toString();
-                            const newText =
-                                currentText.slice(0, start) + text + currentText.slice(end);
+                            const newText = currentText.slice(0, start) + text + currentText.slice(end);
                             input.innerText = newText;
 
                             // Set the cursor back to the right place
@@ -259,6 +242,7 @@ const TextArea = ({
                             setMessage(text);
                         }}
                         onKeyDown={(e) => {
+                            if (!channel) return;
                             if (e.key === 'Enter' && !e.shiftKey && !editContent) {
                                 e.preventDefault();
                                 sendMessage();
@@ -268,6 +252,7 @@ const TextArea = ({
                             }
                         }}
                         onContextMenu={(e) => {
+                            if (!channel) return;
                             e.preventDefault();
                             setFixedLayer({
                                 type: 'menu',
@@ -317,22 +302,21 @@ const TextArea = ({
     else if (!auth.user.blockedUserIds.includes(friend?.id)) {
         return (
             <form className={styles.form}>
-                {reply?.channelId === channel.id && (
+                {reply?.channelId === channel?.id && channel && (
                     <div className={styles.replyContainer}>
                         <div className={styles.replyName}>
-                            Replying to <span>{reply?.author.username}</span>
+                            Replying to <span>{reply?.author?.username || 'User'}</span>
                         </div>
 
                         <div
                             className={styles.replyClose}
                             onClick={() => {
+                                if (!channel) return;
                                 setReply(null);
                                 localStorage.setItem(
                                     `channel-${channel.id}`,
                                     JSON.stringify({
-                                        ...JSON.parse(
-                                            localStorage.getItem(`channel-${channel.id}`) ?? '{}'
-                                        ),
+                                        ...JSON.parse(localStorage.getItem(`channel-${channel.id}`) ?? '{}'),
                                         reply: null,
                                     })
                                 );
@@ -352,7 +336,7 @@ const TextArea = ({
                 <div
                     className={styles.textArea}
                     style={{
-                        borderRadius: reply?.channelId === channel.id ? '0 0 8px 8px' : '8px',
+                        borderRadius: reply?.channelId === channel?.id && channel ? '0 0 8px 8px' : '8px',
                     }}
                 >
                     <div className={styles.scrollableContainer + ' scrollbar'}>
@@ -371,6 +355,7 @@ const TextArea = ({
                                     accept='*'
                                     multiple
                                     onChange={async (e) => {
+                                        if (!channel) return;
                                         const newFiles = Array.from(e.target.files as FileList);
                                         if (files.length + newFiles.length > 10) {
                                             alert('You can only upload 10 files at a time');
@@ -383,9 +368,7 @@ const TextArea = ({
                                         const maxFileSize = 1024 * 1024 * 10; // 10MB
                                         for (const file of newFiles) {
                                             if (file.size > maxFileSize) {
-                                                alert(
-                                                    `File ${file.name} is too big and was skipped`
-                                                );
+                                                alert(`File ${file.name} is too big and was skipped`);
                                             } else {
                                                 checkedFiles.push(file);
                                             }
@@ -400,6 +383,7 @@ const TextArea = ({
                                 <button
                                     onClick={(e) => e.preventDefault()}
                                     onDoubleClick={(e) => {
+                                        if (!channel) return;
                                         e.preventDefault();
                                         fileInputRef.current?.click();
                                     }}
@@ -434,6 +418,7 @@ const TextArea = ({
                                                 : styles.sendButton
                                         }
                                         onClick={(e) => {
+                                            if (!channel) return;
                                             e.preventDefault();
                                             if (editContent) return;
                                             sendMessage();
@@ -443,11 +428,9 @@ const TextArea = ({
                                         }}
                                         disabled={message.length === 0}
                                         style={{
-                                            cursor:
-                                                message.length === 0 ? 'not-allowed' : 'pointer',
+                                            cursor: message.length === 0 ? 'not-allowed' : 'pointer',
                                             opacity: message.length === 0 ? 0.3 : 1,
-                                            color:
-                                                message.length === 0 ? 'var(--foreground-5)' : '',
+                                            color: message.length === 0 ? 'var(--foreground-5)' : '',
                                         }}
                                     >
                                         <div>
@@ -508,10 +491,7 @@ const TextArea = ({
                     <div className={styles.counterContainer}>
                         <span
                             style={{
-                                color:
-                                    message.length > 4000
-                                        ? 'var(--error-1)'
-                                        : 'var(--foreground-3)',
+                                color: message.length > 4000 ? 'var(--error-1)' : 'var(--foreground-3)',
                             }}
                         >
                             {message.length}
@@ -603,9 +583,7 @@ const scale = {
 };
 
 export const EmojiPicker = () => {
-    const [emojisPosIndex, setEmojisPosIndex] = useState(
-        Math.floor(Math.random() * emojisPos.length)
-    );
+    const [emojisPosIndex, setEmojisPosIndex] = useState(Math.floor(Math.random() * emojisPos.length));
 
     return (
         <motion.button
@@ -695,9 +673,7 @@ const FilePreview = ({ file, setFiles }: any) => {
                                     })
                                 }
                                 onMouseLeave={() => setTooltip(null)}
-                                onClick={() =>
-                                    setFiles((files: any) => files.filter((f: any) => f !== file))
-                                }
+                                onClick={() => setFiles((files: any) => files.filter((f: any) => f !== file))}
                             >
                                 <Icon
                                     name='delete'

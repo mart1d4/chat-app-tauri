@@ -202,6 +202,21 @@ type MessageType = {
     error?: boolean;
 };
 
+type MessageEditObject =
+    | {}
+    | {
+          messageId: string;
+          content: string;
+      };
+
+type MessageReplyObject =
+    | {}
+    | {
+          channelId: string;
+          messageId: string;
+          author: UserType;
+      };
+
 //#//#//#//#//#//#//
 // Database Types //
 //#//#//#//#//#//#//

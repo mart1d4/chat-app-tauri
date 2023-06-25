@@ -5,8 +5,8 @@ import {
     UserProfile,
     Popup,
     FixedLayer,
-    Loading,
     TooltipLayer,
+    Loading,
 } from '@/app/app-components';
 import { ReactElement, ReactNode } from 'react';
 import styles from './Layout.module.css';

@@ -60,13 +60,12 @@ const AppHeader = ({ channel }: { channel?: ChannelType }): ReactElement => {
               {
                   name: 'Pinned Messages',
                   icon: 'pin',
-                  func: (e: MouseEvent, element: Node) => {
+                  func: (e: MouseEvent) => {
                       setFixedLayer({
                           type: 'popout',
-                          event: e,
+                          element: e.currentTarget,
                           firstSide: 'bottom',
                           secondSide: 'left',
-                          element: element,
                           gap: 10,
                           channel: channel,
                           pinned: true,
@@ -76,12 +75,11 @@ const AppHeader = ({ channel }: { channel?: ChannelType }): ReactElement => {
               {
                   name: 'Add Friends to DM',
                   icon: 'addUser',
-                  func: (e: MouseEvent, element: Node) => {
+                  func: (e: MouseEvent) => {
                       setFixedLayer({
                           type: 'popout',
-                          event: e,
+                          element: e.currentTarget,
                           gap: 10,
-                          element: element,
                           firstSide: 'bottom',
                           secondSide: 'right',
                           channel: channel,
@@ -267,10 +265,7 @@ const ToolbarIcon = ({ item }: any) => {
             onMouseLeave={() => setTooltip(null)}
             onClick={(e) => {
                 if (item.disabled) return;
-                if (fixedLayer?.element !== e.currentTarget) {
-                    setTooltip(null);
-                    item.func(e, e.currentTarget);
-                } else {
+                if (fixedLayer?.element === e.currentTarget) {
                     setTooltip({
                         text: item.disabled ? item.name + ' (Unavailable)' : item.name,
                         element: e.currentTarget,
@@ -278,6 +273,9 @@ const ToolbarIcon = ({ item }: any) => {
                         gap: 5,
                     });
                     setFixedLayer(null);
+                } else {
+                    setTooltip(null);
+                    item.func(e);
                 }
             }}
         >

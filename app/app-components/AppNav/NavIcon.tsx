@@ -27,7 +27,7 @@ const NavIcon = ({ special, name, link, src, svg, count }: Props): ReactElement 
     const badgeCount = count ?? auth.user.requestReceivedIds.length;
 
     useEffect(() => {
-        if (link.includes(pathname)) {
+        if (special ? link.includes(pathname) : pathname === link) {
             setActive(true);
             setMarkHeight(40);
         } else {
@@ -63,7 +63,7 @@ const NavIcon = ({ special, name, link, src, svg, count }: Props): ReactElement 
                 onMouseEnter={(e) => {
                     setTooltip({
                         text: name,
-                        element: e.target,
+                        element: e.currentTarget,
                         position: 'right',
                         gap: 15,
                         big: true,

@@ -8,7 +8,6 @@ import FixedLayer from './Layers/FixedLayer/FixedLayer';
 import Menu from './Layers/Menu/Menu';
 import Popout from './Layers/Popout/Popout';
 import UserCard from './Layers/UserCard/UserCard';
-import Loading from './Loading/Loading';
 import Message from './Message/Message';
 import TextArea from './TextArea/TextArea';
 import MessageSkeleton from './MessageSkeleton/MessageSkeleton';
@@ -20,6 +19,8 @@ import LoadingDots from './LoadingDots/LoadingDots';
 import Avatar from './Avatar/Avatar';
 import TooltipLayer from './TooltipLayer/TooltipLayer';
 import { EmojiPicker } from './TextArea/TextArea';
+import Loading from './Loading/Loading';
+import TitleBar from './TitleBar/TitleBar';
 
 export {
     AppNav,
@@ -32,7 +33,6 @@ export {
     Menu,
     Popout,
     UserCard,
-    Loading,
     Message,
     TextArea,
     MessageSkeleton,
@@ -44,4 +44,6 @@ export {
     Avatar,
     TooltipLayer,
     EmojiPicker,
+    Loading,
+    TitleBar,
 };

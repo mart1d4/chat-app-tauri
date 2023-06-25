@@ -300,8 +300,12 @@
     color: var(--foreground-3);
 }
 
+.buttons > div > svg {
+    transition: transform 0.1s ease-in-out;
+}
+
 .buttons > div:active > svg {
-    transform: translateY(0.5px);
+    transform: translateY(1px);
 }
 
 .buttons > div:first-child {

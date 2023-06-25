@@ -26,8 +26,8 @@ const TooltipLayer = (): ReactElement => {
             return;
         }
 
-        let pos: any = {};
-        let arrowPos: any = {};
+        let pos: {} = {};
+        let arrowPos: {} = {};
 
         const container = element?.getBoundingClientRect();
         const screenX = window.innerWidth;

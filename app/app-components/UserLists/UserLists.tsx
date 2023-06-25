@@ -157,7 +157,10 @@ const UserLists = ({ content }: Props): ReactElement => {
                                 e.preventDefault();
                                 setFixedLayer({
                                     type: 'menu',
-                                    event: e,
+                                    event: {
+                                        mouseX: e.clientX,
+                                        mouseY: e.clientY,
+                                    },
                                     input: true,
                                     pasteText,
                                 });

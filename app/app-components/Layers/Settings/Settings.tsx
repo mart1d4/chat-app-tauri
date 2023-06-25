@@ -31,6 +31,7 @@ const Settings = (): ReactElement => {
     const [activeTab, setActiveTab] = useState<string>('My Account');
 
     const { showSettings, setShowSettings }: any = useContextHook({ context: 'layer' });
+    const { setTooltip }: any = useContextHook({ context: 'tooltip' });
     const { logout } = useLogout();
 
     useEffect(() => {
@@ -130,21 +131,17 @@ const Settings = (): ReactElement => {
                 <motion.div
                     className={styles.container}
                     initial={{
-                        scale: 1.2,
+                        transform: 'translateY(100%)',
                     }}
                     animate={{
-                        opacity: 1,
-                        scale: 1,
-                        transition: {
-                            duration: 0.2,
-                        },
+                        transform: 'translateY(0%)',
                     }}
                     exit={{
-                        opacity: 0,
-                        scale: 1.2,
-                        transition: {
-                            duration: 0.05,
-                        },
+                        transform: 'translateY(100%)',
+                    }}
+                    transition={{
+                        duration: 0.5,
+                        ease: 'backOut',
                     }}
                 >
                     <div className={styles.sidebar}>
@@ -195,7 +192,12 @@ const Settings = (): ReactElement => {
 
                             <div className={styles.closeButton}>
                                 <div>
-                                    <div onClick={() => setShowSettings(false)}>
+                                    <div
+                                        onClick={() => {
+                                            setTooltip(null);
+                                            setShowSettings(false);
+                                        }}
+                                    >
                                         <Icon
                                             name='close'
                                             size={18}
@@ -946,7 +948,7 @@ const Profiles = () => {
                                                 width='100%'
                                                 rx={8}
                                                 ry={8}
-                                                fill='var(--success-1)'
+                                                fill='var(--success-light)'
                                                 mask='url(#svg-mask-status-online)'
                                             />
                                         </svg>
@@ -960,6 +962,12 @@ const Profiles = () => {
                                         <h4>{displayName || auth.user.displayName}</h4>
                                         <div>{auth.user.username}</div>
                                     </div>
+
+                                    {auth.user.customStatus && (
+                                        <div className={styles.cardSection}>
+                                            <div>{auth.user.customStatus}</div>
+                                        </div>
+                                    )}
 
                                     <div className={styles.cardDivider} />
 

@@ -84,7 +84,6 @@ const Message = ({
 
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
-                console.log('esc');
                 if (edit) {
                     setEdit(null);
                     setLocalStorage({ edit: null });
@@ -274,10 +273,12 @@ const Message = ({
                 onMouseEnter={() => setHover(true)}
                 onMouseLeave={() => setHover(false)}
                 onContextMenu={(e) => {
-                    e.preventDefault();
                     setFixedLayer({
                         type: 'menu',
-                        event: e,
+                        event: {
+                            mouseX: e.clientX,
+                            mouseY: e.clientY,
+                        },
                         message: {
                             ...message,
                             inline: true,
@@ -362,11 +363,13 @@ const Message = ({
             }}
             onMouseLeave={() => setHover(false)}
             onContextMenu={(e) => {
-                e.preventDefault();
                 if (noInteraction || edit?.messageId === message.id) return;
                 setFixedLayer({
                     type: 'menu',
-                    event: e,
+                    event: {
+                        mouseX: e.clientX,
+                        mouseY: e.clientY,
+                    },
                     message: message,
                     deletePopup,
                     pinPopup,
@@ -407,16 +410,14 @@ const Message = ({
                                 onDoubleClick={(e) => e.stopPropagation()}
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    e.preventDefault();
-                                    if (fixedLayer?.e?.currentTarget === e.currentTarget) {
+                                    if (fixedLayer?.element === e.currentTarget) {
                                         setFixedLayer(null);
                                     } else {
                                         setFixedLayer({
                                             type: 'usercard',
-                                            event: e,
+                                            element: e.currentTarget,
                                             // @ts-ignore
                                             user: message.messageReference?.author,
-                                            element: e.currentTarget,
                                             firstSide: 'right',
                                             gap: 10,
                                         });
@@ -424,10 +425,12 @@ const Message = ({
                                 }}
                                 onContextMenu={(e) => {
                                     e.stopPropagation();
-                                    e.preventDefault();
                                     setFixedLayer({
                                         type: 'menu',
-                                        event: e,
+                                        event: {
+                                            mouseX: e.clientX,
+                                            mouseY: e.clientY,
+                                        },
                                         //  @ts-ignore
                                         user: message.messageReference?.author,
                                     });
@@ -446,16 +449,14 @@ const Message = ({
                                 onDoubleClick={(e) => e.stopPropagation()}
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    e.preventDefault();
-                                    if (fixedLayer?.e?.currentTarget === e.currentTarget) {
+                                    if (fixedLayer?.element === e.currentTarget) {
                                         setFixedLayer(null);
                                     } else {
                                         setFixedLayer({
                                             type: 'usercard',
-                                            event: e,
+                                            element: e.currentTarget,
                                             // @ts-ignore
                                             user: message.messageReference?.author,
-                                            element: e.currentTarget,
                                             firstSide: 'right',
                                             gap: 10,
                                         });
@@ -466,7 +467,10 @@ const Message = ({
                                     e.preventDefault();
                                     setFixedLayer({
                                         type: 'menu',
-                                        event: e,
+                                        event: {
+                                            mouseX: e.clientX,
+                                            mouseY: e.clientY,
+                                        },
                                         //  @ts-ignore
                                         user: message.messageReference?.author,
                                     });
@@ -493,19 +497,18 @@ const Message = ({
                         }}
                     >
                         <div
-                            ref={userImageRef}
                             className={styles.userAvatar}
                             onClick={(e) => {
-                                if (fixedLayer?.element === userImageRef.current) {
+                                e.stopPropagation();
+                                if (fixedLayer?.element === e.currentTarget) {
                                     setFixedLayer(null);
                                     return;
                                 }
 
                                 setFixedLayer({
                                     type: 'usercard',
-                                    event: e,
+                                    element: e.currentTarget,
                                     user: message?.author,
-                                    element: userImageRef.current,
                                     firstSide: 'right',
                                     gap: 10,
                                 });
@@ -516,7 +519,10 @@ const Message = ({
                                 e.preventDefault();
                                 setFixedLayer({
                                     type: 'menu',
-                                    event: e,
+                                    event: {
+                                        mouseX: e.clientX,
+                                        mouseY: e.clientY,
+                                    },
                                     user: message.author,
                                 });
                             }}
@@ -535,14 +541,13 @@ const Message = ({
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     e.preventDefault();
-                                    if (fixedLayer?.e?.currentTarget === e.currentTarget) {
+                                    if (fixedLayer?.element === e.currentTarget) {
                                         setFixedLayer(null);
                                     } else {
                                         setFixedLayer({
                                             type: 'usercard',
-                                            event: e,
-                                            user: message.author,
                                             element: e.currentTarget,
+                                            user: message.author,
                                             firstSide: 'right',
                                             gap: 10,
                                         });
@@ -553,7 +558,10 @@ const Message = ({
                                     e.preventDefault();
                                     setFixedLayer({
                                         type: 'menu',
-                                        event: e,
+                                        event: {
+                                            mouseX: e.clientX,
+                                            mouseY: e.clientY,
+                                        },
                                         user: message.author,
                                     });
                                 }}
@@ -721,7 +729,13 @@ const MessageMenu = ({ message, large, functions }: any) => {
     }, [message]);
 
     return (
-        <div className={styles.buttonContainer}>
+        <div
+            className={styles.buttonContainer}
+            onContextMenu={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+            }}
+        >
             <div
                 className={styles.buttonWrapper}
                 style={{ top: large ? '-16px' : '-25px' }}
@@ -786,14 +800,13 @@ const MessageMenu = ({ message, large, functions }: any) => {
                         onMouseLeave={() => setTooltip(null)}
                         onClick={(e) => {
                             e.stopPropagation();
-                            if (fixedLayer?.element === menuButtonRef.current) {
+                            if (fixedLayer?.element === e.currentTarget) {
                                 setFixedLayer(null);
                             } else {
                                 setFixedLayer({
                                     type: 'menu',
-                                    event: e,
+                                    element: e.currentTarget,
                                     firstSide: 'left',
-                                    element: menuButtonRef.current,
                                     gap: 5,
                                     message: message,
                                     deletePopup: functions.deletePopup,

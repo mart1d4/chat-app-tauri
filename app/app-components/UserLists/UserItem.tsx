@@ -4,9 +4,9 @@ import { addFriend, removeFriend, unblockUser } from '@/lib/api-functions/users'
 import { createChannel } from '@/lib/api-functions/channels';
 import { Avatar, Icon } from '@/app/app-components';
 import useContextHook from '@/hooks/useContextHook';
-import styles from './UserItem.module.css';
+import { ReactElement, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { ReactElement } from 'react';
+import styles from './UserItem.module.css';
 
 type Props = {
     content: string;
@@ -18,6 +18,7 @@ const UserItem = ({ content, user }: Props): ReactElement => {
     const { setTooltip }: any = useContextHook({ context: 'tooltip' });
     const { auth }: any = useContextHook({ context: 'auth' });
 
+    const liRef = useRef(null);
     const router = useRouter();
 
     const channelExists = (userId: string) => {
@@ -34,9 +35,22 @@ const UserItem = ({ content, user }: Props): ReactElement => {
         else return false;
     };
 
+    const hoverStyle = {
+        borderRadius: '8px',
+        margin: '0 10px 0 20px',
+        padding: '16px 10px',
+        backgroundColor: 'var(--background-hover-1)',
+        borderColor: 'transparent',
+    };
+
     return (
         <li
-            className={styles.liContainer}
+            ref={liRef}
+            className={
+                styles.liContainer +
+                ' ' +
+                (fixedLayer?.element === liRef.current ? styles.hovered : '')
+            }
             onClick={async () => {
                 if (content !== 'online' && content !== 'all') return;
 
@@ -52,7 +66,11 @@ const UserItem = ({ content, user }: Props): ReactElement => {
                 e.preventDefault();
                 setFixedLayer({
                     type: 'menu',
-                    event: e,
+                    event: {
+                        mouseX: e.clientX,
+                        mouseY: e.clientY,
+                    },
+                    element: e.currentTarget,
                     user: user,
                 });
             }}
@@ -126,7 +144,10 @@ const UserItem = ({ content, user }: Props): ReactElement => {
                                     e.stopPropagation();
                                     setFixedLayer({
                                         type: 'menu',
-                                        event: e,
+                                        event: {
+                                            mouseX: e.clientX,
+                                            mouseY: e.clientY,
+                                        },
                                         user: user,
                                         userlist: true,
                                     });

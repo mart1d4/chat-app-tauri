@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 'use client';
 
 import { pinMessage, unpinMessage, deleteMessage } from '@/lib/api-functions/messages';
@@ -11,25 +9,37 @@ import { v4 as uuidv4 } from 'uuid';
 
 type UserProps = {
     isSelf: boolean;
-    isFriend: boolean;
-    isBlocked: boolean;
-    sentRequest: boolean;
-    receivedRequest: boolean;
+    isFriend?: boolean;
+    isBlocked?: boolean;
+    sentRequest?: boolean;
+    receivedRequest?: boolean;
 };
 
-const content = ({ content }: any): ReactElement => {
-    const [active, setActive] = useState(null);
-    const [items, setItems] = useState([]);
+type ItemType = {
+    name: string | null;
+    icon?: string;
+    iconSize?: number;
+    iconInverted?: boolean;
+    textTip?: string;
+    func?: () => void;
+    funcShift?: () => void;
+    danger?: boolean;
+    disabled?: boolean;
+};
+
+const content = ({ content }: { content: any }): ReactElement => {
+    const [active, setActive] = useState<string>('');
+    const [items, setItems] = useState<ItemType[]>([]);
+    const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
     const [shift, setShift] = useState<boolean>(false);
     const [userProps, setUserProps] = useState<UserProps | null>(null);
 
-    const { setFixedLayer, setUserProfile }: any = useContextHook({ context: 'layer' });
     const { userSettings, setUserSettings }: any = useContextHook({ context: 'settings' });
+    const { setFixedLayer, setUserProfile }: any = useContextHook({ context: 'layer' });
     const { auth }: any = useContextHook({ context: 'auth' });
 
-    const user = content?.user || null;
-    const message = content?.message || null;
-    let menuItems: any;
+    const user: CleanUserType = content.user;
+    const message: MessageType = content.message;
 
     const shouldDisplayInlined = (type: string) => {
         const inlineTypes = [
@@ -46,12 +56,21 @@ const content = ({ content }: any): ReactElement => {
         return inlineTypes.includes(type);
     };
 
+    const writeText = async (text: string) => {
+        await navigator.clipboard.writeText(text);
+    };
+
+    const pasteText = async (element: HTMLElement) => {
+        const text = await navigator.clipboard.readText();
+        element.innerText += text;
+    };
+
     useEffect(() => {
-        const handleShift = (e) => {
+        const handleShift = (e: KeyboardEvent) => {
             if (e.key === 'Shift') setShift(true);
         };
 
-        const handleShiftUp = (e) => {
+        const handleShiftUp = (e: KeyboardEvent) => {
             if (e.key === 'Shift') setShift(false);
         };
 
@@ -65,50 +84,58 @@ const content = ({ content }: any): ReactElement => {
     }, []);
 
     useEffect(() => {
-        menuItems = items?.filter(
-            (item) =>
-                item.name !== 'Divider' &&
-                item.name !== null &&
-                item.name !== false &&
-                !item?.disabled
+        setFilteredItems(
+            items?.filter(
+                (item) => item.name !== 'Divider' && item.name !== null && !item.disabled
+            ) || []
         );
+    }, [items]);
 
-        const handlekeyDown = (e) => {
+    useEffect(() => {
+        const handlekeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
                 setFixedLayer(null);
             } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                e.stopPropagation();
+
                 if (active === null) {
-                    setActive(menuItems[0].name);
+                    setActive(filteredItems[0].name as string);
                 } else {
-                    const index = menuItems.findIndex((item) => item.name === active);
-                    if (index < menuItems.length - 1) {
-                        setActive(menuItems[index + 1].name);
+                    const index = filteredItems.findIndex((item) => item.name === active);
+                    if (index < filteredItems.length - 1) {
+                        setActive(filteredItems[index + 1].name as string);
                     } else {
-                        setActive(menuItems[0].name);
+                        setActive(filteredItems[0].name as string);
                     }
                 }
             } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                e.stopPropagation();
+
                 if (active === null) {
-                    setActive(menuItems[menuItems.length - 1].name);
+                    setActive(filteredItems[filteredItems.length - 1].name as string);
                 } else {
-                    const index = menuItems.findIndex((item) => item.name === active);
+                    const index = filteredItems.findIndex((item) => item.name === active);
                     if (index > 0) {
-                        setActive(menuItems[index - 1].name);
+                        setActive(filteredItems[index - 1].name as string);
                     } else {
-                        setActive(menuItems[menuItems.length - 1].name);
+                        setActive(filteredItems[filteredItems.length - 1].name as string);
                     }
                 }
             } else if (e.key === 'Enter') {
-                const func = menuItems.find((item) => item.name === active)?.func();
-                const funcShift = menuItems.find((item) => item.name === active)?.funcShift();
+                e.preventDefault();
+                e.stopPropagation();
+
+                const func = filteredItems.find((item) => item.name === active)?.func;
+                const funcShift = filteredItems.find((item) => item.name === active)?.funcShift;
 
                 if (active) {
                     setFixedLayer(null);
-                    if (shift && funcShift) {
-                        funcShift();
-                        return;
-                    }
-                    func();
+                    if (shift && funcShift) funcShift();
+                    else if (func) func();
                 }
             }
         };
@@ -116,7 +143,7 @@ const content = ({ content }: any): ReactElement => {
         document.addEventListener('keydown', handlekeyDown);
 
         return () => document.removeEventListener('keydown', handlekeyDown);
-    }, [active, items]);
+    }, [filteredItems, active]);
 
     useEffect(() => {
         if (content?.user) {
@@ -131,29 +158,29 @@ const content = ({ content }: any): ReactElement => {
             setUserProps({
                 isSelf: content.message.author.id === auth.user.id,
             });
+        } else {
+            setUserProps(null);
         }
     }, [content]);
 
     useEffect(() => {
-        if ((content?.user || content?.message) && !userProps?.isSelf) {
+        if (user && typeof userProps?.isFriend !== 'boolean') {
             return;
-        }
-
-        if (content?.input) {
+        } else if (message && typeof userProps?.isSelf !== 'boolean') {
+            return;
+        } else if (content?.input) {
             setItems([
                 {
                     name: content?.sendButton && 'Send Message Button',
                     icon: userSettings?.sendButton ? 'boxFilled' : 'box',
                     iconSize: 18,
-                    iconFill: userSettings?.sendButton && 'var(--accent-1)',
-                    iconFill2: userSettings?.sendButton && 'var(--foreground-1)',
-                    iconFill2Hover: 'var(--accent-1)',
-                    func: () =>
+                    iconInverted: true,
+                    func: () => {
                         setUserSettings({
                             ...userSettings,
                             sendButton: !userSettings?.sendButton,
-                        }),
-                    menuOpen: true,
+                        });
+                    },
                 },
                 { name: content?.sendButton && 'Divider' },
                 {
@@ -164,7 +191,7 @@ const content = ({ content }: any): ReactElement => {
                 { name: 'Divider' },
                 {
                     name: 'Paste',
-                    text: 'Ctrl+V',
+                    textTip: 'Ctrl+V',
                     func: () => content?.pasteText(),
                 },
             ]);
@@ -182,15 +209,13 @@ const content = ({ content }: any): ReactElement => {
                         name: 'Copy Message Link',
                         icon: 'link',
                         func: () =>
-                            navigator.clipboard.writeText(
-                                `/channels/@me/${message.channel}/${message.id}`
-                            ),
+                            writeText(`/channels/@me/${message.channelId[0]}/${message.id}`),
                     },
                     { name: 'Divider' },
                     {
                         name: 'Copy Message ID',
                         icon: 'id',
-                        func: () => navigator.clipboard.writeText(message.id),
+                        func: () => writeText(message.id),
                     },
                 ]);
             } else {
@@ -202,7 +227,7 @@ const content = ({ content }: any): ReactElement => {
                         func: () => {},
                     },
                     {
-                        name: userProps.isSelf && 'Edit Message',
+                        name: userProps.isSelf ? 'Edit Message' : null,
                         icon: 'edit',
                         func: () => content?.editMessageState(),
                     },
@@ -235,7 +260,16 @@ const content = ({ content }: any): ReactElement => {
                                 `/channels/@me/${message.channel}/${message.id}`
                             ),
                     },
-                    { name: 'Speak Message', icon: 'speak', func: () => {} },
+                    {
+                        name: 'Speak Message',
+                        icon: 'speak',
+                        func: () => {
+                            const msg = new SpeechSynthesisUtterance();
+                            msg.lang = 'fr';
+                            msg.text = `${message.author.username} said ${message.content}`;
+                            window.speechSynthesis.speak(msg);
+                        },
+                    },
                     {
                         name: userProps.isSelf && 'Delete Message',
                         icon: 'delete',
@@ -293,7 +327,7 @@ const content = ({ content }: any): ReactElement => {
                     icon: 'id',
                 },
             ]);
-        } else if (content?.user) {
+        } else if (user) {
             if (userProps.isSelf) {
                 setItems([
                     {
@@ -491,12 +525,12 @@ const content = ({ content }: any): ReactElement => {
                 ]);
             }
         }
-    }, [userProps, userSettings, content]);
+    }, [userProps, userSettings]);
 
     return (
         <div
             className={styles.menuContainer}
-            onMouseLeave={() => setActive(null)}
+            onMouseLeave={() => setActive('')}
         >
             <div>
                 {items?.map((item) => {
@@ -525,16 +559,11 @@ const content = ({ content }: any): ReactElement => {
                                 }
                                 onClick={() => {
                                     if (item.disabled) return;
-                                    if (!item.menuOpen) {
-                                        setFixedLayer(null);
-                                    }
-                                    if (shift && item.funcShift) {
-                                        item.funcShift();
-                                        return;
-                                    }
-                                    item.func();
+                                    setFixedLayer(null);
+                                    if (shift && item.funcShift) item.funcShift();
+                                    else if (item.func) item.func();
                                 }}
-                                onMouseEnter={() => setActive(item.name)}
+                                onMouseEnter={() => setActive(item.name as string)}
                             >
                                 <div className={styles.label}>{item.name}</div>
 
@@ -543,24 +572,11 @@ const content = ({ content }: any): ReactElement => {
                                         <Icon
                                             name={item.icon}
                                             size={item.iconSize ?? 16}
-                                            fill={
-                                                item.iconFill
-                                                    ? item.iconFill
-                                                    : active === item.name
-                                                    ? 'var(--foreground-1)'
-                                                    : ''
-                                            }
-                                            fill2={
-                                                item.iconFill2 &&
-                                                (active === item.name
-                                                    ? item.iconFill2Hover
-                                                    : item.iconFill2)
-                                            }
                                         />
                                     </div>
                                 )}
 
-                                {item.text && <div className={styles.text}>{item.text}</div>}
+                                {item.textTip && <div className={styles.text}>{item.textTip}</div>}
                             </div>
                         );
                 })}

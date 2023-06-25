@@ -21,16 +21,21 @@ const Register = (): ReactElement => {
     const [usernameError, setUsernameError] = useState<string>('');
     const [passwordError, setPasswordError] = useState<string>('');
 
-    const uidInputRef = useRef<HTMLInputElement>(null);
-    const router: AppRouterInstance = useRouter();
     const { auth, loading }: any = useContextHook({ context: 'auth' });
 
+    const uidInputRef = useRef<HTMLInputElement>(null);
+    const router: AppRouterInstance = useRouter();
+
     useEffect(() => {
-        if (loading) return;
-        if (auth?.accessToken) {
-            router.push('/channels/me');
+        const authLocal = JSON.parse(localStorage.getItem('auth') || '{}');
+
+        if (authLocal?.accessToken || auth?.accessToken) {
+            const channelUrl = localStorage.getItem('channel-url');
+
+            if (channelUrl) router.push(channelUrl);
+            else router.push('/channels/me');
         }
-    }, [loading]);
+    }, [auth, loading]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent): void => {

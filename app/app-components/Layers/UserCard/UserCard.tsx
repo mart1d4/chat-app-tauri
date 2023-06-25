@@ -8,8 +8,8 @@ import { Icon } from '@/app/app-components';
 import styles from './UserCard.module.css';
 
 const UserCard = ({ content, side, resetPosition }: any): ReactElement => {
-    const [note, setNote] = useState('');
-    const [message, setMessage] = useState('');
+    const [note, setNote] = useState<string>('');
+    const [message, setMessage] = useState<string>('');
 
     const { setUserProfile, setFixedLayer, setShowSettings }: any = useContextHook({
         context: 'layer',
@@ -93,6 +93,9 @@ const UserCard = ({ content, side, resetPosition }: any): ReactElement => {
                         <svg
                             className={styles.cardBanner}
                             viewBox={`0 0 340 ${user.banner ? '120' : '90'}`}
+                            style={{
+                                minHeight: user.banner ? '120px' : '90px',
+                            }}
                         >
                             <mask id='card-banner-mask'>
                                 <rect
@@ -135,9 +138,7 @@ const UserCard = ({ content, side, resetPosition }: any): ReactElement => {
 
                         <div
                             className={styles.cardAvatar}
-                            style={{
-                                top: user.banner ? '76px' : '46px',
-                            }}
+                            style={{ top: user.banner ? '76px' : '46px' }}
                         >
                             <div
                                 className={styles.avatarImage}
@@ -163,11 +164,7 @@ const UserCard = ({ content, side, resetPosition }: any): ReactElement => {
                                 }}
                                 onMouseLeave={() => setTooltip(null)}
                             >
-                                <div
-                                    style={{
-                                        backgroundColor: 'black',
-                                    }}
-                                />
+                                <div style={{ backgroundColor: 'black' }} />
 
                                 <svg>
                                     <rect
@@ -175,7 +172,7 @@ const UserCard = ({ content, side, resetPosition }: any): ReactElement => {
                                         width='100%'
                                         rx={8}
                                         ry={8}
-                                        fill='var(--success-1)'
+                                        fill='var(--success-light)'
                                         mask='url(#svg-mask-status-online)'
                                     />
                                 </svg>
@@ -189,6 +186,12 @@ const UserCard = ({ content, side, resetPosition }: any): ReactElement => {
                                 <h4>{user.displayName}</h4>
                                 <div>{user.username}</div>
                             </div>
+
+                            {user.customStatus && (
+                                <div className={styles.cardSection}>
+                                    <div>{user.customStatus}</div>
+                                </div>
+                            )}
 
                             <div className={styles.cardDivider} />
 
@@ -224,12 +227,28 @@ const UserCard = ({ content, side, resetPosition }: any): ReactElement => {
                                         onInput={(e) => {
                                             setNote(e.currentTarget.value);
                                         }}
-                                        // style={{
-                                        //     height: `${noteRef.current?.scrollHeight}px`,
-                                        // }}
                                     />
                                 </div>
                             </div>
+
+                            {auth.user.id !== user.id && (
+                                <div className={styles.cardSection}>
+                                    <input
+                                        className={styles.cardMessage}
+                                        value={message}
+                                        placeholder={`Message @${user.username}`}
+                                        aria-label={`Message @${user.username}`}
+                                        maxLength={4000}
+                                        autoCorrect='off'
+                                        style={{
+                                            borderColor: user.primaryColor,
+                                        }}
+                                        onChange={(e) => {
+                                            setMessage(e.currentTarget.value);
+                                        }}
+                                    />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </motion.div>

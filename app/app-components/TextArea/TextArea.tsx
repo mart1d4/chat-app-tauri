@@ -271,7 +271,10 @@ const TextArea = ({
                             e.preventDefault();
                             setFixedLayer({
                                 type: 'menu',
-                                event: e,
+                                event: {
+                                    mouseX: e.clientX,
+                                    mouseY: e.clientY,
+                                },
                                 input: true,
                                 pasteText,
                                 sendButton: true,

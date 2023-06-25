@@ -1,15 +1,13 @@
-// @ts-nocheck
-
 import SettingsProvider from '@/context/SettingsProvider';
 import TooltipProvider from '@/context/TooltipProvider';
-import { Analytics } from '@vercel/analytics/react';
 import LayerProvider from '@/context/LayerProvider';
 import AuthProvider from '@/context/AuthProvider';
 import { ReactElement } from 'react';
 import './global.css';
+import { TitleBar } from './app-components';
 
 const RootLayout = ({ children }: { children: ReactElement }): ReactElement => {
-    const maskStyle = {
+    const maskStyle: React.CSSProperties = {
         position: 'absolute',
         top: '-1000px',
         left: '-1000px',
@@ -19,147 +17,149 @@ const RootLayout = ({ children }: { children: ReactElement }): ReactElement => {
     return (
         <html lang='en'>
             <body>
-                <AuthProvider>
-                    <LayerProvider>
-                        <TooltipProvider>
-                            <SettingsProvider>{children}</SettingsProvider>
-                        </TooltipProvider>
-                    </LayerProvider>
-                </AuthProvider>
+                <div>
+                    <TitleBar />
 
-                <Analytics />
+                    <AuthProvider>
+                        <LayerProvider>
+                            <TooltipProvider>
+                                <SettingsProvider>{children}</SettingsProvider>
+                            </TooltipProvider>
+                        </LayerProvider>
+                    </AuthProvider>
 
-                <svg style={maskStyle}>
-                    <mask
-                        id='status-mask-24'
-                        maskContentUnits='objectBoundingBox'
-                        viewBox='0 0 1 1'
-                    >
-                        <circle
-                            fill='white'
-                            cx='0.5'
-                            cy='0.5'
-                            r='0.5'
-                        />
+                    <svg style={maskStyle}>
+                        <mask
+                            id='status-mask-24'
+                            maskContentUnits='objectBoundingBox'
+                            viewBox='0 0 1 1'
+                        >
+                            <circle
+                                fill='white'
+                                cx='0.5'
+                                cy='0.5'
+                                r='0.5'
+                            />
 
-                        <circle
-                            fill='black'
-                            cx='0.85'
-                            cy='0.85'
-                            r='0.300'
-                        />
-                    </mask>
-                </svg>
+                            <circle
+                                fill='black'
+                                cx='0.85'
+                                cy='0.85'
+                                r='0.300'
+                            />
+                        </mask>
+                    </svg>
 
-                <svg style={maskStyle}>
-                    <mask
-                        id='status-mask-24'
-                        maskContentUnits='objectBoundingBox'
-                        viewBox='0 0 1 1'
-                    >
-                        <circle
-                            fill='white'
-                            cx='0.5'
-                            cy='0.5'
-                            r='0.5'
-                        />
+                    <svg style={maskStyle}>
+                        <mask
+                            id='status-mask-24'
+                            maskContentUnits='objectBoundingBox'
+                            viewBox='0 0 1 1'
+                        >
+                            <circle
+                                fill='white'
+                                cx='0.5'
+                                cy='0.5'
+                                r='0.5'
+                            />
 
-                        <circle
-                            fill='black'
-                            cx='0.85'
-                            cy='0.85'
-                            r='0.275'
-                        />
-                    </mask>
-                </svg>
+                            <circle
+                                fill='black'
+                                cx='0.85'
+                                cy='0.85'
+                                r='0.275'
+                            />
+                        </mask>
+                    </svg>
 
-                <svg style={maskStyle}>
-                    <mask
-                        id='status-mask-32'
-                        maskContentUnits='objectBoundingBox'
-                        viewBox='0 0 1 1'
-                    >
-                        <circle
-                            fill='white'
-                            cx='0.5'
-                            cy='0.5'
-                            r='0.5'
-                        />
+                    <svg style={maskStyle}>
+                        <mask
+                            id='status-mask-32'
+                            maskContentUnits='objectBoundingBox'
+                            viewBox='0 0 1 1'
+                        >
+                            <circle
+                                fill='white'
+                                cx='0.5'
+                                cy='0.5'
+                                r='0.5'
+                            />
 
-                        <circle
-                            fill='black'
-                            cx='0.85'
-                            cy='0.85'
-                            r='0.25'
-                        />
-                    </mask>
-                </svg>
+                            <circle
+                                fill='black'
+                                cx='0.85'
+                                cy='0.85'
+                                r='0.25'
+                            />
+                        </mask>
+                    </svg>
 
-                <svg style={maskStyle}>
-                    <mask
-                        id='status-mask-40'
-                        maskContentUnits='objectBoundingBox'
-                        viewBox='0 0 1 1'
-                    >
-                        <circle
-                            fill='white'
-                            cx='0.5'
-                            cy='0.5'
-                            r='0.5'
-                        />
+                    <svg style={maskStyle}>
+                        <mask
+                            id='status-mask-40'
+                            maskContentUnits='objectBoundingBox'
+                            viewBox='0 0 1 1'
+                        >
+                            <circle
+                                fill='white'
+                                cx='0.5'
+                                cy='0.5'
+                                r='0.5'
+                            />
 
-                        <circle
-                            fill='black'
-                            cx='0.85'
-                            cy='0.85'
-                            r='0.185'
-                        />
-                    </mask>
-                </svg>
+                            <circle
+                                fill='black'
+                                cx='0.85'
+                                cy='0.85'
+                                r='0.185'
+                            />
+                        </mask>
+                    </svg>
 
-                <svg style={maskStyle}>
-                    <mask
-                        id='status-mask-80'
-                        maskContentUnits='objectBoundingBox'
-                        viewBox='0 0 1 1'
-                    >
-                        <circle
-                            fill='white'
-                            cx='0.5'
-                            cy='0.5'
-                            r='0.5'
-                        />
+                    <svg style={maskStyle}>
+                        <mask
+                            id='status-mask-80'
+                            maskContentUnits='objectBoundingBox'
+                            viewBox='0 0 1 1'
+                        >
+                            <circle
+                                fill='white'
+                                cx='0.5'
+                                cy='0.5'
+                                r='0.5'
+                            />
 
-                        <circle
-                            fill='black'
-                            cx='0.85'
-                            cy='0.85'
-                            r='0.175'
-                        />
-                    </mask>
-                </svg>
+                            <circle
+                                fill='black'
+                                cx='0.85'
+                                cy='0.85'
+                                r='0.175'
+                            />
+                        </mask>
+                    </svg>
 
-                <svg style={maskStyle}>
-                    <mask
-                        id='status-mask-120'
-                        maskContentUnits='objectBoundingBox'
-                        viewBox='0 0 1 1'
-                    >
-                        <circle
-                            fill='white'
-                            cx='0.5'
-                            cy='0.5'
-                            r='0.5'
-                        />
+                    <svg style={maskStyle}>
+                        <mask
+                            id='status-mask-120'
+                            maskContentUnits='objectBoundingBox'
+                            viewBox='0 0 1 1'
+                        >
+                            <circle
+                                fill='white'
+                                cx='0.5'
+                                cy='0.5'
+                                r='0.5'
+                            />
 
-                        <circle
-                            fill='black'
-                            cx='0.85'
-                            cy='0.85'
-                            r='0.16'
-                        />
-                    </mask>
-                </svg>
+                            <circle
+                                fill='black'
+                                cx='0.85'
+                                cy='0.85'
+                                r='0.16'
+                            />
+                        </mask>
+                    </svg>
+                </div>
             </body>
         </html>
     );

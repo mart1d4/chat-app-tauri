@@ -4,7 +4,7 @@ import useContextHook from './useContextHook';
 import { useRouter } from 'next/navigation';
 
 const useLogout = () => {
-    const { auth, setAuth }: any = useContextHook({ context: 'auth' });
+    const { auth, setAuth, setLoading }: any = useContextHook({ context: 'auth' });
     const router = useRouter();
 
     const logout = async () => {

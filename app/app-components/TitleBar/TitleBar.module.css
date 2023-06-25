@@ -1,0 +1,50 @@
+.titleBar {
+    top: 0;
+    width: 100dvw;
+    height: 22px;
+    display: flex;
+    flex-shrink: 0;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    align-items: stretch;
+    z-index: 10000000000000000;
+    -webkit-app-region: drag;
+}
+
+.titleBar > div:first-child {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 4px 10px;
+    color: var(--foreground-4);
+    pointer-events: none;
+}
+
+.button {
+    top: -4px;
+    cursor: pointer;
+    width: 28px;
+    height: 22px;
+    color: var(--foreground-4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button:hover {
+    background-color: var(--background-hover-1);
+    color: var(--foreground-2);
+}
+
+.button:active {
+    background-color: var(--background-hover-2);
+    color: var(--foreground-1);
+}
+
+.titleBar > div:nth-child(2):hover {
+    background-color: var(--error-1);
+}
+
+.titleBar > div:nth-child(2):active {
+    background-color: var(--error-2);
+}

@@ -34,7 +34,6 @@ const Title = (): ReactElement => {
                         setTooltip(null);
                         setFixedLayer({
                             type: 'popout',
-                            event: e,
                             element: e.currentTarget,
                             gap: 5,
                             firstSide: 'bottom',

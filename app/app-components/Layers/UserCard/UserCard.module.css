@@ -159,6 +159,7 @@
     justify-content: flex-end;
     align-items: center;
     gap: 2px;
+    min-height: 30px;
     height: 30px;
     width: 102px;
     background-color: var(--card-background-color);
@@ -167,13 +168,16 @@
 .cardBody {
     padding: 0 12px;
     margin: 28px 16px 16px;
-    max-height: calc(100dvh - 128px);
     position: relative;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: hidden scroll;
     background-color: var(--card-background-color);
+}
+
+.cardBody::-webkit-scrollbar {
+    width: 0;
 }
 
 .cardBody > .cardSection {
@@ -338,6 +342,19 @@
 .cardInput::-webkit-scrollbar-track {
     border: 1px solid transparent;
     background-color: transparent;
+}
+
+.cardMessage {
+    background-color: transparent;
+    font-size: 14px;
+    padding: 10px;
+    height: 40px;
+    width: 100%;
+    border-radius: 3px;
+    color: var(--foreground-2);
+    border: none;
+    outline: none;
+    border: 1px solid transparent;
 }
 
 .editProfileButton {

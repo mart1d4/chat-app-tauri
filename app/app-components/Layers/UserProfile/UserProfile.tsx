@@ -14,9 +14,10 @@ const UserProfile = (): ReactElement => {
     const [mutualFriends, setMutualFriends] = useState<CleanOtherUserType[]>([]);
     const [note, setNote] = useState<string>('');
 
-    const { userProfile, setUserProfile, fixedLayer, setFixedLayer, setShowSettings }: any = useContextHook({
-        context: 'layer',
-    });
+    const { userProfile, setUserProfile, fixedLayer, setFixedLayer, setShowSettings }: any =
+        useContextHook({
+            context: 'layer',
+        });
     const { setTooltip }: any = useContextHook({ context: 'tooltip' });
     const { auth }: any = useContextHook({ context: 'auth' });
     const token = auth.accessToken;
@@ -30,7 +31,9 @@ const UserProfile = (): ReactElement => {
 
     const shouldShowContent = () => {
         return (
-            auth.user.friendIds?.includes(user?.id) || auth.user.requestsReceivedIds?.includes(user?.id) || isSameUser()
+            auth.user.friendIds?.includes(user?.id) ||
+            auth.user.requestsReceivedIds?.includes(user?.id) ||
+            isSameUser()
         );
     };
 
@@ -60,7 +63,9 @@ const UserProfile = (): ReactElement => {
         return () => window.removeEventListener('keydown', handleClick);
     }, [userProfile, fixedLayer]);
 
-    const sectionNavItems = isSameUser() ? ['User Info'] : ['User Info', 'Mutual Servers', 'Mutual Friends'];
+    const sectionNavItems = isSameUser()
+        ? ['User Info']
+        : ['User Info', 'Mutual Servers', 'Mutual Friends'];
 
     return (
         <AnimatePresence>
@@ -95,7 +100,10 @@ const UserProfile = (): ReactElement => {
                             },
                         }}
                     >
-                        <div className={styles.topSection} style={{ backgroundColor: user.primaryColor }}>
+                        <div
+                            className={styles.topSection}
+                            style={{ backgroundColor: user.primaryColor }}
+                        >
                             {isSameUser() && (
                                 <div
                                     className={styles.editProfileButton}
@@ -141,7 +149,12 @@ const UserProfile = (): ReactElement => {
                                                     <>
                                                         <button
                                                             className='green'
-                                                            onClick={async () => await addFriend(token, user.username)}
+                                                            onClick={async () =>
+                                                                await addFriend(
+                                                                    token,
+                                                                    user.username
+                                                                )
+                                                            }
                                                         >
                                                             Accept
                                                         </button>
@@ -149,7 +162,10 @@ const UserProfile = (): ReactElement => {
                                                         <button
                                                             className='grey'
                                                             onClick={async () =>
-                                                                await removeFriend(token, user.username)
+                                                                await removeFriend(
+                                                                    token,
+                                                                    user.username
+                                                                )
                                                             }
                                                         >
                                                             Ignore
@@ -158,7 +174,9 @@ const UserProfile = (): ReactElement => {
                                                 ) : auth.user.friendIds.includes(user.id) ? (
                                                     <button
                                                         className='green'
-                                                        onClick={async () => await createChannel(token, [user.id])}
+                                                        onClick={async () =>
+                                                            await createChannel(token, [user.id])
+                                                        }
                                                     >
                                                         Send Message
                                                     </button>
@@ -166,18 +184,31 @@ const UserProfile = (): ReactElement => {
                                                     <div>
                                                         <button
                                                             className={
-                                                                auth.user.requestSentIds.includes(user.id)
+                                                                auth.user.requestSentIds.includes(
+                                                                    user.id
+                                                                )
                                                                     ? 'green disabled'
                                                                     : 'green'
                                                             }
                                                             onClick={async () => {
-                                                                if (auth.user.requestSentIds?.includes(user.id)) {
+                                                                if (
+                                                                    auth.user.requestSentIds?.includes(
+                                                                        user.id
+                                                                    )
+                                                                ) {
                                                                     return;
                                                                 }
-                                                                await addFriend(token, user.username);
+                                                                await addFriend(
+                                                                    token,
+                                                                    user.username
+                                                                );
                                                             }}
                                                             onMouseEnter={(e) => {
-                                                                if (!auth.user.requestSentIds?.includes(user.id))
+                                                                if (
+                                                                    !auth.user.requestSentIds?.includes(
+                                                                        user.id
+                                                                    )
+                                                                )
                                                                     return;
                                                                 setTooltip({
                                                                     text: 'You sent a friend request to this user.',
@@ -200,7 +231,10 @@ const UserProfile = (): ReactElement => {
                                                 e.stopPropagation();
                                                 setFixedLayer({
                                                     type: 'menu',
-                                                    event: e,
+                                                    event: {
+                                                        mouseX: e.clientX,
+                                                        mouseY: e.clientY,
+                                                    },
                                                     user: user,
                                                     userprofile: true,
                                                 });
@@ -234,8 +268,13 @@ const UserProfile = (): ReactElement => {
                                                             ? 'var(--foreground-1)'
                                                             : 'var(--foreground-3)',
                                                     borderColor:
-                                                        activeNavItem === index ? 'var(--foreground-1)' : 'transparent',
-                                                    cursor: activeNavItem === index ? 'default' : 'pointer',
+                                                        activeNavItem === index
+                                                            ? 'var(--foreground-1)'
+                                                            : 'transparent',
+                                                    cursor:
+                                                        activeNavItem === index
+                                                            ? 'default'
+                                                            : 'pointer',
                                                 }}
                                                 onClick={() => setActiveNavItem(index)}
                                             >
@@ -256,7 +295,9 @@ const UserProfile = (): ReactElement => {
                                         {user.description && shouldShowContent() && (
                                             <>
                                                 <h1>About Me</h1>
-                                                <div className={styles.contentUserDescription}>{user.description}</div>
+                                                <div className={styles.contentUserDescription}>
+                                                    {user.description}
+                                                </div>
                                             </>
                                         )}
 
@@ -294,7 +335,12 @@ const UserProfile = (): ReactElement => {
                                 {activeNavItem === 2 && (
                                     <>
                                         {mutualFriends.length > 0 ? (
-                                            mutualFriends.map((friend) => <FriendItem key={uuidv4()} friend={friend} />)
+                                            mutualFriends.map((friend) => (
+                                                <FriendItem
+                                                    key={uuidv4()}
+                                                    friend={friend}
+                                                />
+                                            ))
                                         ) : (
                                             <div className={styles.empty + ' ' + styles.noFriends}>
                                                 <div />
@@ -320,16 +366,23 @@ const FriendItem = ({ friend }: { friend: CleanOtherUserType }): ReactElement =>
             className={styles.contentUserFriend}
             onClick={() => setUserProfile({ user: friend })}
             onContextMenu={(e) => {
-                e.preventDefault();
                 setFixedLayer({
                     type: 'menu',
-                    event: e,
+                    event: {
+                        mouseX: e.clientX,
+                        mouseY: e.clientY,
+                    },
                     user: friend,
                 });
             }}
         >
             <div>
-                <Avatar src={friend.avatar} alt={friend.username} size={40} status={friend.status} />
+                <Avatar
+                    src={friend.avatar}
+                    alt={friend.username}
+                    size={40}
+                    status={friend.status}
+                />
             </div>
 
             <div>{friend?.username}</div>

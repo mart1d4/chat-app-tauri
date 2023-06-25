@@ -12,7 +12,8 @@
     cursor: pointer;
 }
 
-.liContainer:hover {
+.liContainer:hover,
+.liContainer.hovered {
     border-radius: 8px;
     margin: 0 10px 0 20px;
     padding: 16px 10px;
@@ -20,7 +21,8 @@
     border-color: transparent;
 }
 
-.liContainer:hover + .liContainer {
+.liContainer:hover + .liContainer,
+.liContainer.hovered + .liContainer {
     border-color: transparent;
 }
 

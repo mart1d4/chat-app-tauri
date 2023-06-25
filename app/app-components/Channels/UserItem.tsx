@@ -17,12 +17,12 @@ type Props = {
 const UserItem = ({ special, channel }: Props): ReactElement => {
     const [user, setUser] = useState<CleanOtherUserType | null>(null);
 
-    const pathname = usePathname();
-    const router = useRouter();
-
-    const { auth }: any = useContextHook({ context: 'auth' });
     const { setFixedLayer }: any = useContextHook({ context: 'layer' });
+    const { setTooltip }: any = useContextHook({ context: 'tooltip' });
+    const { auth }: any = useContextHook({ context: 'auth' });
+
     const token = auth?.accessToken;
+    const pathname = usePathname();
 
     useEffect(() => {
         if (channel?.type === 'DM') {
@@ -81,19 +81,18 @@ const UserItem = ({ special, channel }: Props): ReactElement => {
                         e.preventDefault();
                         setFixedLayer({
                             type: 'menu',
-                            event: e,
+                            event: {
+                                mouseX: e.clientX,
+                                mouseY: e.clientY,
+                            },
                             user: user,
                             channel: channel || null,
                         });
                     }}
-                    style={
-                        pathname === `/channels/me/${channel.id}`
-                            ? {
-                                  backgroundColor: 'var(--background-5)',
-                                  color: 'var(--foreground-1)',
-                              }
-                            : {}
-                    }
+                    style={{
+                        backgroundColor: pathname.includes(channel.id) ? 'var(--background-5)' : '',
+                        color: pathname.includes(channel.id) ? 'var(--foreground-1)' : '',
+                    }}
                 >
                     <div className={styles.liWrapper}>
                         <div className={styles.link}>
@@ -127,12 +126,22 @@ const UserItem = ({ special, channel }: Props): ReactElement => {
                                         </div>
                                     </div>
 
-                                    {user?.customStatus !== undefined &&
-                                        channel.type !== 'GROUP_DM' && (
-                                            <div className={styles.contentStatus}>
-                                                {user.customStatus}
-                                            </div>
-                                        )}
+                                    {user?.customStatus && channel.type !== 'GROUP_DM' && (
+                                        <div
+                                            className={styles.contentStatus}
+                                            onMouseEnter={(e) => {
+                                                e.stopPropagation();
+                                                setTooltip({
+                                                    text: user.customStatus,
+                                                    element: e.currentTarget,
+                                                    delay: 500,
+                                                });
+                                            }}
+                                            onMouseLeave={(e) => setTooltip(null)}
+                                        >
+                                            {user.customStatus}
+                                        </div>
+                                    )}
 
                                     {channel.type === 'GROUP_DM' && (
                                         <div className={styles.contentStatus}>

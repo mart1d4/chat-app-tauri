@@ -7,7 +7,7 @@ import styles from './AppHeader.module.css';
 import { v4 as uuidv4 } from 'uuid';
 
 const AppHeader = ({ channel }: { channel?: ChannelType | null }): ReactElement => {
-    const [friend, setFriend] = useState<undefined | CleanOtherUserType>();
+    const [friend, setFriend] = useState<undefined | UserType>();
     const [widthLimitPassed, setWidthLimitPassed] = useState<boolean>(false);
 
     const { setUserProfile, setFixedLayer }: any = useContextHook({ context: 'layer' });
@@ -15,13 +15,11 @@ const AppHeader = ({ channel }: { channel?: ChannelType | null }): ReactElement 
     const { setTooltip }: any = useContextHook({ context: 'tooltip' });
     const { auth }: any = useContextHook({ context: 'auth' });
 
-    const requestNumber: number = auth.user.requestReceivedIds.length;
-
     useEffect(() => {
         if (!channel) return;
 
         if (channel.type === 'DM') {
-            setFriend(channel.recipients.find((user: CleanOtherUserType) => user.id !== auth.user.id));
+            setFriend(channel.recipients.find((user: UserType) => user.id !== auth.user.id));
         }
     }, [channel]);
 
@@ -138,8 +136,8 @@ const AppHeader = ({ channel }: { channel?: ChannelType | null }): ReactElement 
                                         }
                                     >
                                         {tab.name}
-                                        {tab.name === 'Pending' && requestNumber > 0 && (
-                                            <div className={styles.badge}>{requestNumber}</div>
+                                        {tab.name === 'Pending' && auth.user.requestsReceivedIds?.length > 0 && (
+                                            <div className={styles.badge}>{auth.user.requestsReceivedIds.length}</div>
                                         )}
                                     </li>
                                 ))}
@@ -243,7 +241,7 @@ const AppHeader = ({ channel }: { channel?: ChannelType | null }): ReactElement 
                 </div>
             </div>
         ),
-        [channel, friend, userSettings, widthLimitPassed]
+        [channel, friend, userSettings, widthLimitPassed, auth.user.requestsReceivedIds]
     );
 };
 

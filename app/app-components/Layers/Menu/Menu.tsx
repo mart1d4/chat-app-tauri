@@ -38,7 +38,7 @@ const content = ({ content }: { content: any }): ReactElement => {
     const { setFixedLayer, setUserProfile }: any = useContextHook({ context: 'layer' });
     const { auth }: any = useContextHook({ context: 'auth' });
 
-    const user: CleanUserType = content.user;
+    const user: UserType = content.user;
     const message: MessageType = content.message;
 
     const shouldDisplayInlined = (type: string) => {
@@ -85,9 +85,7 @@ const content = ({ content }: { content: any }): ReactElement => {
 
     useEffect(() => {
         setFilteredItems(
-            items?.filter(
-                (item) => item.name !== 'Divider' && item.name !== null && !item.disabled
-            ) || []
+            items?.filter((item) => item.name !== 'Divider' && item.name !== null && !item.disabled) || []
         );
     }, [items]);
 
@@ -208,8 +206,7 @@ const content = ({ content }: { content: any }): ReactElement => {
                     {
                         name: 'Copy Message Link',
                         icon: 'link',
-                        func: () =>
-                            writeText(`/channels/@me/${message.channelId[0]}/${message.id}`),
+                        func: () => writeText(`/channels/@me/${message.channelId[0]}/${message.id}`),
                     },
                     { name: 'Divider' },
                     {
@@ -234,9 +231,7 @@ const content = ({ content }: { content: any }): ReactElement => {
                     {
                         name: message.pinned ? 'Unpin Message' : 'Pin Message',
                         icon: 'pin',
-                        func: message?.pinned
-                            ? () => content?.unpinPopup()
-                            : () => content?.pinPopup(),
+                        func: message?.pinned ? () => content?.unpinPopup() : () => content?.pinPopup(),
                         funcShift: message.pinned
                             ? () => unpinMessage(auth.accessToken, message.id)
                             : () => pinMessage(auth.accessToken, message.id),
@@ -255,10 +250,7 @@ const content = ({ content }: { content: any }): ReactElement => {
                     {
                         name: 'Copy Message Link',
                         icon: 'link',
-                        func: () =>
-                            navigator.clipboard.writeText(
-                                `/channels/@me/${message.channel}/${message.id}`
-                            ),
+                        func: () => navigator.clipboard.writeText(`/channels/@me/${message.channel}/${message.id}`),
                     },
                     {
                         name: 'Speak Message',
@@ -376,18 +368,12 @@ const content = ({ content }: { content: any }): ReactElement => {
                                 : userProps.isFriend
                                 ? 'Remove Friend'
                                 : 'Add Friend'),
-                        func: () =>
-                            userProps.sentRequest || userProps.isFriend
-                                ? removeFriend()
-                                : addFriend(),
+                        func: () => (userProps.sentRequest || userProps.isFriend ? removeFriend() : addFriend()),
                         danger: userProps.sentRequest || userProps.isFriend,
                     },
                     {
                         name: userProps.isBlocked ? 'UnuserProps.isBlocked' : 'Block',
-                        func: () =>
-                            userProps.isBlocked
-                                ? unuserProps.isBlockedUser()
-                                : userProps.isBlockedUser(),
+                        func: () => (userProps.isBlocked ? unuserProps.isBlockedUser() : userProps.isBlockedUser()),
                         danger: !userProps.isBlocked,
                     },
                     {
@@ -465,11 +451,8 @@ const content = ({ content }: { content: any }): ReactElement => {
                     },
                     {
                         name:
-                            !(
-                                userProps.receivedRequest ||
-                                userProps.sentRequest ||
-                                !userProps.isFriend
-                            ) && 'Add Friend Nickname',
+                            !(userProps.receivedRequest || userProps.sentRequest || !userProps.isFriend) &&
+                            'Add Friend Nickname',
                         func: () => {},
                     },
                     {
@@ -491,17 +474,11 @@ const content = ({ content }: { content: any }): ReactElement => {
                             : userProps.isFriend
                             ? 'Remove Friend'
                             : 'Add Friend',
-                        func: () =>
-                            userProps.sentRequest || userProps.isFriend
-                                ? removeFriend()
-                                : addFriend(),
+                        func: () => (userProps.sentRequest || userProps.isFriend ? removeFriend() : addFriend()),
                     },
                     {
                         name: userProps.isBlocked ? 'UnuserProps.isBlocked' : 'Block',
-                        func: () =>
-                            userProps.isBlocked
-                                ? unuserProps.isBlockedUser()
-                                : userProps.isBlockedUser(),
+                        func: () => (userProps.isBlocked ? unuserProps.isBlockedUser() : userProps.isBlockedUser()),
                         danger: !userProps.isBlocked,
                     },
                     { name: 'Divider' },

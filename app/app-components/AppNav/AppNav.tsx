@@ -1,11 +1,11 @@
 'use client';
 
-import { ReactElement, useEffect, useRef, useState, useMemo } from 'react';
+import { ReactElement, useEffect, useState, useMemo } from 'react';
 import useContextHook from '@/hooks/useContextHook';
 import { usePathname } from 'next/navigation';
+import pusher from '@/lib/pusher/connection';
 import styles from './AppNav.module.css';
 import NavIcon from './NavIcon';
-import Pusher from 'pusher-js';
 
 const AppNav = (): ReactElement => {
     const [url, setUrl] = useState<string>('/channels/me');
@@ -18,8 +18,6 @@ const AppNav = (): ReactElement => {
     >([]);
 
     const { auth, setAuth }: any = useContextHook({ context: 'auth' });
-    const pusher = useRef<Pusher | null>(null);
-    const ref = useRef<boolean>(false);
     const pathname = usePathname();
 
     useEffect(() => {
@@ -68,91 +66,58 @@ const AppNav = (): ReactElement => {
     }, [auth.user.notifications]);
 
     useEffect(() => {
-        if (ref.current) {
-            pusher.current = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
-                cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string,
-            });
-            setPusherListener();
-        }
+        const setPusherListener = () => {
+            pusher.bind(`user-updated`, (data: any) => setData(data));
+            pusher.bind(`message-sent`, (data: any) => setTrigger(data));
 
-        const windowUnload = () => {
-            sendData(false);
+            pusher.bind(`user-friend`, (data: any) => {
+                setUserData({
+                    data: data,
+                    type: 'friend',
+                });
+            });
+
+            pusher.bind(`user-request`, (data: any) => {
+                setUserData({
+                    data: data,
+                    type: 'request',
+                });
+            });
+
+            pusher.bind(`user-blocked`, (data: any) => {
+                setUserData({
+                    data: data,
+                    type: 'blocked',
+                });
+            });
+
+            pusher.bind(`user-unblocked`, (data: any) => {
+                setUserData({
+                    data: data,
+                    type: 'unblocked',
+                });
+            });
+
+            pusher.bind(`user-removed`, (data: any) => {
+                setUserData({
+                    data: data,
+                    type: 'removed',
+                });
+            });
         };
 
-        window.addEventListener('beforeunload', windowUnload);
+        setPusherListener();
 
         return () => {
-            ref.current = true;
-            pusher.current?.unsubscribe('chat-app');
+            pusher.unbind('user-updated');
+            pusher.unbind('message-sent');
+            pusher.unbind('user-friend');
+            pusher.unbind('user-request');
+            pusher.unbind('user-blocked');
+            pusher.unbind('user-unblocked');
+            pusher.unbind('user-removed');
         };
     }, []);
-
-    const setPusherListener = () => {
-        const channel = pusher.current?.subscribe('chat-app');
-
-        pusher.current?.connection.bind('connected', () => {
-            sendData(true);
-        });
-
-        pusher.current?.connection.bind('disconnected', () => {
-            sendData(false);
-        });
-
-        pusher.current?.connection.bind('error', () => {
-            sendData(false);
-        });
-
-        pusher.current?.connection.bind('unavailable', () => {
-            sendData(false);
-        });
-
-        pusher.current?.connection.bind('failed', () => {
-            sendData(false);
-        });
-
-        channel?.bind('user-updated', (data: any) => {
-            setData(data);
-        });
-
-        channel?.bind(`message-sent`, (data: any) => {
-            setTrigger(data);
-        });
-
-        channel?.bind(`user-friend`, (data: any) => {
-            setUserData({
-                data: data,
-                type: 'friend',
-            });
-        });
-
-        channel?.bind(`user-request`, (data: any) => {
-            setUserData({
-                data: data,
-                type: 'request',
-            });
-        });
-
-        channel?.bind(`user-blocked`, (data: any) => {
-            setUserData({
-                data: data,
-                type: 'blocked',
-            });
-        });
-
-        channel?.bind(`user-unblocked`, (data: any) => {
-            setUserData({
-                data: data,
-                type: 'unblocked',
-            });
-        });
-
-        channel?.bind(`user-removed`, (data: any) => {
-            setUserData({
-                data: data,
-                type: 'removed',
-            });
-        });
-    };
 
     const setUserData = ({ data, type }: any) => {
         if (![data.sender.id, data.user.id].includes(auth.user.id)) return;
@@ -276,58 +241,39 @@ const AppNav = (): ReactElement => {
             return;
         }
 
-        const notification = notifDM.find((notification: any) => notification?.channel.id === trigger.channel);
+        const notification = notifDM.find((notif: any) => notif?.channel.id === trigger.channel);
 
-        if (notification) {
-            setAuth({
-                ...auth,
-                user: {
-                    ...auth.user,
-                    notifications: auth.user.notifications.map((notification: any) => {
-                        if (notification?.channel === trigger.channel) {
-                            return {
-                                ...notification,
-                                count: notification?.count + 1,
-                            };
-                        }
+        const channelToMove = auth.user.channels.find((channel: any) => channel.id === trigger.channel);
+        const channelsFiltered = auth.user.channels.filter((channel: any) => channel.id !== trigger.channel);
 
-                        return notification;
-                    }),
-                },
-            });
-        } else {
-            setAuth({
-                ...auth,
-                user: {
-                    ...auth.user,
-                    notifications: [
-                        {
-                            channel: trigger.channel,
-                            count: 1,
-                        },
-                        ...auth.user.notifications,
-                    ],
-                },
-            });
-        }
+        setAuth({
+            ...auth,
+            user: {
+                ...auth.user,
+                notifications: notification
+                    ? auth.user.notifications.map((notification: any) => {
+                          notification?.channel === trigger.channel
+                              ? {
+                                    ...notification,
+                                    count: notification?.count + 1,
+                                }
+                              : notification;
+                      })
+                    : [
+                          {
+                              channel: trigger.channel,
+                              count: 1,
+                          },
+                          ...auth.user.notifications,
+                      ],
+                channels: [channelToMove, ...channelsFiltered],
+            },
+        });
 
         const audio = new Audio('/assets/sounds/ping.mp3');
         audio.volume = 0.5;
         audio.play();
     }, [trigger]);
-
-    const sendData = async (connected: boolean) => {
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/me`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${auth.accessToken}`,
-            },
-            body: JSON.stringify({
-                status: connected ? 'Online' : 'Offline',
-            }),
-        });
-    };
 
     const setData = async (data: any) => {
         if (data.userId === auth.user.id) {
@@ -342,85 +288,27 @@ const AppNav = (): ReactElement => {
                     banner: data.banner || auth.user.banner,
                     primaryColor: data.primaryColor || auth.user.primaryColor,
                     accentColor: data.accentColor || auth.user.accentColor,
-                    status: typeof data.status === 'boolean' ? (data.status ? 'Online' : 'Offline') : auth.user.status,
                 },
             });
         } else if (auth.user.friendIds.includes(data.userId)) {
-            if (data.connected) {
-                auth.user.friends.map((friend: any) => {
-                    if (friend.id === data.userId) {
-                        friend.status = data.connected ? 'Online' : 'Offline';
-                    }
+            auth.user.friends.map((friend: any) => {
+                if (friend.id === data.userId) {
+                    return {
+                        ...friend,
+                        username: data.username || friend.username,
+                        displayName: data.displayName || friend.displayName,
+                        description: data.description || friend.description,
+                        avatar: data.avatar || friend.avatar,
+                        banner: data.banner || friend.banner,
+                        primaryColor: data.primaryColor || friend.primaryColor,
+                        accentColor: data.accentColor || friend.accentColor,
+                    };
+                }
 
-                    return friend;
-                });
-            }
-
-            if (data.username) {
-                auth.user.friends.map((friend: any) => {
-                    if (friend.id === data.userId) {
-                        friend.username = data.username;
-                    }
-
-                    return friend;
-                });
-            }
-
-            if (data.avatar) {
-                auth.user.friends.map((friend: any) => {
-                    if (friend.id === data.userId) {
-                        friend.avatar = data.avatar;
-                    }
-
-                    return friend;
-                });
-            }
+                return friend;
+            });
         }
     };
-
-    const chatAppIcon = (
-        <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='24'
-            height='24'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-        >
-            <path d='M8 9h8' />
-            <path d='M8 13h6' />
-            <path d='M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z' />
-        </svg>
-    );
-
-    const addServerIcon = (
-        <svg
-            width='24'
-            height='24'
-            viewBox='0 0 24 24'
-        >
-            <path
-                fill='currentColor'
-                d='M20 11.1111H12.8889V4H11.1111V11.1111H4V12.8889H11.1111V20H12.8889V12.8889H20V11.1111Z'
-            />
-        </svg>
-    );
-
-    const discoverIcon = (
-        <svg
-            viewBox='0 0 24 24'
-            width='24'
-            height='24'
-        >
-            <path
-                fill='currentColor'
-                d='M12 10.9C11.39 10.9 10.9 11.39 10.9 12C10.9 12.61 11.39 13.1 12 13.1C12.61 13.1 13.1 12.61 13.1 12C13.1 11.39 12.61 10.9 12 10.9ZM12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM14.19 14.19L6 18L9.81 9.81L18 6L14.19 14.19Z'
-            />
-        </svg>
-    );
 
     return useMemo(
         () => (
@@ -440,7 +328,7 @@ const AppNav = (): ReactElement => {
                         special={true}
                         name='Direct Messages'
                         link={url}
-                        svg={chatAppIcon}
+                        icon='chatApp'
                     />
 
                     <div className={styles.listItem}>
@@ -451,14 +339,14 @@ const AppNav = (): ReactElement => {
                         green={true}
                         name='Add a Server'
                         link={'/channels/add'}
-                        svg={addServerIcon}
+                        icon='addServer'
                     />
 
                     <NavIcon
                         green={true}
                         name='Discover Servers'
                         link={'/channels/discover'}
-                        svg={discoverIcon}
+                        icon='discoverServers'
                     />
                 </ul>
             </nav>

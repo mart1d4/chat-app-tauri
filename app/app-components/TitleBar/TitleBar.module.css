@@ -1,6 +1,7 @@
 .titleBar {
-    top: 0;
-    width: 100dvw;
+    position: fixed;
+    top: 1px;
+    width: calc(100% - 2px);
     height: 22px;
     display: flex;
     flex-shrink: 0;
@@ -9,13 +10,14 @@
     align-items: stretch;
     z-index: 10000000000000000;
     -webkit-app-region: drag;
+    overflow: hidden;
 }
 
 .titleBar > div:first-child {
     position: absolute;
     top: 0;
     left: 0;
-    padding: 4px 10px;
+    padding: 4px 8px;
     color: var(--foreground-4);
     pointer-events: none;
 }
@@ -39,6 +41,10 @@
 .button:active {
     background-color: var(--background-hover-2);
     color: var(--foreground-1);
+}
+
+.titleBar > div:nth-child(2) {
+    border-top-right-radius: 6px;
 }
 
 .titleBar > div:nth-child(2):hover {

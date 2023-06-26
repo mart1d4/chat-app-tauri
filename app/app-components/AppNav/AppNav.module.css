@@ -95,7 +95,7 @@
     display: block;
     width: 8px;
     border-radius: 0 4px 4px 0;
-    margin-left: -4px;
+    margin-left: -5px;
     background-color: var(--foreground-1);
 }
 

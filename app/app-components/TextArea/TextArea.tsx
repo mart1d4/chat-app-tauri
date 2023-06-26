@@ -5,7 +5,6 @@ import useContextHook from '@/hooks/useContextHook';
 import { trimMessage } from '@/lib/strings/checks';
 import { Icon } from '@/app/app-components';
 import styles from './TextArea.module.css';
-import filetypeinfo from 'magic-bytes.js';
 import { motion } from 'framer-motion';
 import { v4 as uuidv4 } from 'uuid';
 

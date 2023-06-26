@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect, ReactElement, ReactNode } from 'react';
+import { useState, useEffect, ReactElement } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import useContextHook from '@/hooks/useContextHook';
 import styles from './AppNav.module.css';
 import { motion } from 'framer-motion';
+import Icon from '../Icon/Icon';
 
 type Props = {
     green?: boolean;
@@ -12,11 +13,11 @@ type Props = {
     name: string;
     link: string;
     src?: string;
-    svg?: ReactNode;
+    icon?: string;
     count?: number;
 };
 
-const NavIcon = ({ green, special, name, link, src, svg, count }: Props): ReactElement => {
+const NavIcon = ({ green, special, name, link, src, icon, count }: Props): ReactElement => {
     const [active, setActive] = useState<boolean>(false);
     const [markHeight, setMarkHeight] = useState<number>(0);
 
@@ -104,7 +105,7 @@ const NavIcon = ({ green, special, name, link, src, svg, count }: Props): ReactE
                         alt={name}
                     />
                 ) : (
-                    svg
+                    <Icon name={icon as string} />
                 )}
             </motion.div>
         </div>

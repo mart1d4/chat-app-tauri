@@ -325,7 +325,17 @@ const MemberList = ({ channel }: { channel: ChannelType | null }): ReactElement 
                 </aside>
             );
         }
-    }, [userSettings.showUsers, widthLimitPassed, channel, user]);
+    }, [
+        userSettings.showUsers,
+        widthLimitPassed,
+        channel,
+        user,
+        note,
+        mutualFriends,
+        mutualGuilds,
+        showFriends,
+        showGuilds,
+    ]);
 };
 
 const MutualItem = ({ user, guild }: { user?: CleanOtherUserType; guild?: GuildType }) => {

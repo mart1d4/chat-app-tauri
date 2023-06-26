@@ -220,8 +220,7 @@ body > div {
     border-radius: 8px;
     overflow: hidden;
     background-color: var(--background-1);
-    border: 1px solid var(--background-hover-2);
-    box-shadow: var(--elevation-high-dark);
+    border: 1px solid var(--background-hover-3);
 }
 
 body > div.maximized {

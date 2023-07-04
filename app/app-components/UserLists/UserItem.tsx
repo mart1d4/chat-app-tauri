@@ -7,6 +7,7 @@ import useContextHook from '@/hooks/useContextHook';
 import { ReactElement, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './UserItem.module.css';
+import { translateCap } from '@/lib/strings';
 
 type Props = {
     content: string;
@@ -26,8 +27,7 @@ const UserItem = ({ content, user }: Props): ReactElement => {
             return (
                 channel.recipients.length === 2 &&
                 ((channel.recipientIds[0] === userId && channel.recipientIds[1] === auth.user.id) ||
-                    (channel.recipientIds[0] === auth.user.id &&
-                        channel.recipientIds[1] === userId))
+                    (channel.recipientIds[0] === auth.user.id && channel.recipientIds[1] === userId))
             );
         });
 
@@ -46,11 +46,7 @@ const UserItem = ({ content, user }: Props): ReactElement => {
     return (
         <li
             ref={liRef}
-            className={
-                styles.liContainer +
-                ' ' +
-                (fixedLayer?.element === liRef.current ? styles.hovered : '')
-            }
+            className={styles.liContainer + ' ' + (fixedLayer?.element === liRef.current ? styles.hovered : '')}
             onClick={async () => {
                 if (content !== 'online' && content !== 'all') return;
 
@@ -102,7 +98,7 @@ const UserItem = ({ content, user }: Props): ReactElement => {
                                     ? 'Blocked'
                                     : user.customStatus
                                     ? user.customStatus
-                                    : user.status}
+                                    : translateCap(user.status)}
                             </span>
                         </p>
                     </div>

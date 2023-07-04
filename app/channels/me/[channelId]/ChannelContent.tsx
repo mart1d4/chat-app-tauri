@@ -2,9 +2,9 @@
 
 import { AppHeader, Message, TextArea, MemberList, MessageSkeleton, Avatar } from '@/app/app-components';
 import { addFriend, blockUser, removeFriend, unblockUser } from '@/lib/api-functions/users';
-import { useState, useEffect, useCallback, ReactElement, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, ReactElement, useMemo } from 'react';
 import useContextHook from '@/hooks/useContextHook';
-import pusher from '@/lib/pusher/connection';
+import pusher from '@/lib/pusher/client-connection';
 import styles from './Channels.module.css';
 import { v4 as uuidv4 } from 'uuid';
 

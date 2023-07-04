@@ -21,6 +21,7 @@ import TooltipLayer from './TooltipLayer/TooltipLayer';
 import { EmojiPicker } from './TextArea/TextArea';
 import Loading from './Loading/Loading';
 import TitleBar from './TitleBar/TitleBar';
+import FixedMessage from './Message/FixedMessage';
 
 export {
     AppNav,
@@ -34,6 +35,7 @@ export {
     Popout,
     UserCard,
     Message,
+    FixedMessage,
     TextArea,
     MessageSkeleton,
     MemberList,

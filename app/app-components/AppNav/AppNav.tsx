@@ -1,9 +1,9 @@
 'use client';
 
 import { ReactElement, useEffect, useState, useMemo } from 'react';
+import pusher from '@/lib/pusher/client-connection';
 import useContextHook from '@/hooks/useContextHook';
 import { usePathname } from 'next/navigation';
-import pusher from '@/lib/pusher/connection';
 import styles from './AppNav.module.css';
 import NavIcon from './NavIcon';
 

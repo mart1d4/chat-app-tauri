@@ -4,6 +4,7 @@ import { Avatar, Icon } from '@/app/app-components';
 import useContextHook from '@/hooks/useContextHook';
 import { useRef, ReactElement } from 'react';
 import styles from './Channels.module.css';
+import { translateCap } from '@/lib/strings';
 
 const UserSection = (): ReactElement => {
     const { setShowSettings, fixedLayer, setFixedLayer }: any = useContextHook({
@@ -35,10 +36,7 @@ const UserSection = (): ReactElement => {
                         });
                     }}
                     style={{
-                        backgroundColor:
-                            fixedLayer?.element === userSection.current
-                                ? 'var(--background-hover-1)'
-                                : '',
+                        backgroundColor: fixedLayer?.element === userSection.current ? 'var(--background-hover-1)' : '',
                     }}
                 >
                     <div>
@@ -52,7 +50,7 @@ const UserSection = (): ReactElement => {
 
                     <div className={styles.contentWrapper}>
                         <div>{auth?.user?.username}</div>
-                        <div>{auth?.user?.status || 'Invisible'}</div>
+                        <div>{translateCap(auth?.user?.status)}</div>
                     </div>
                 </div>
 
@@ -88,9 +86,7 @@ const UserSection = (): ReactElement => {
                                     microphone: !userSettings?.microphone,
                                 });
                                 const audio = new Audio(`
-                                    /assets/sounds/${
-                                        userSettings?.microphone ? 'mute' : 'unmute'
-                                    }.mp3
+                                    /assets/sounds/${userSettings?.microphone ? 'mute' : 'unmute'}.mp3
                                 `);
                                 audio.volume = 0.5;
                                 audio.play();
@@ -136,9 +132,7 @@ const UserSection = (): ReactElement => {
                             }
 
                             const audio = new Audio(`
-                                    /assets/sounds/${
-                                        userSettings?.sound ? 'deafen' : 'undeafen'
-                                    }.mp3
+                                    /assets/sounds/${userSettings?.sound ? 'deafen' : 'undeafen'}.mp3
                                 `);
                             audio.volume = 0.5;
                             audio.play();

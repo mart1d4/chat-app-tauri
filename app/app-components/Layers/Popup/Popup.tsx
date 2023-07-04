@@ -1,9 +1,10 @@
 'use client';
 
+import { deleteMessage, pinMessage, unpinMessage } from '@/lib/api-functions/messages';
 import { useRef, useEffect, useState, ReactElement } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import useContextHook from '@/hooks/useContextHook';
-import { Message } from '@/app/app-components';
+import { FixedMessage } from '@/app/app-components';
 import styles from './Popup.module.css';
 
 const Popup = (): ReactElement => {
@@ -51,7 +52,7 @@ const Popup = (): ReactElement => {
         if (isLoading) return;
         setIsLoading(true);
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/me`, {
+        const response = await fetch('/api/users/me', {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -74,7 +75,7 @@ const Popup = (): ReactElement => {
         if (isLoading) return;
         setIsLoading(true);
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/users/me`, {
+        const response = await fetch('/api/users/me', {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -108,6 +109,9 @@ const Popup = (): ReactElement => {
                             setPopup(null);
                         }
                     }}
+                    onContextMenu={(e) => {
+                        e.preventDefault();
+                    }}
                 >
                     <motion.div
                         ref={popupRef}
@@ -139,11 +143,7 @@ const Popup = (): ReactElement => {
                             </div>
                         ) : (
                             <div className={styles.titleBlockCentered}>
-                                <div>
-                                    {popup?.username
-                                        ? 'Change your username'
-                                        : 'Update your password'}
-                                </div>
+                                <div>{popup?.username ? 'Change your username' : 'Update your password'}</div>
 
                                 <div>
                                     {popup?.username
@@ -174,28 +174,18 @@ const Popup = (): ReactElement => {
                         <div className={styles.popupContent + ' scrollbar'}>
                             {!popup?.username && !popup?.password && (
                                 <div>
-                                    {popup?.delete &&
-                                        'Are you sure you want to delete this message?'}
+                                    {popup?.delete && 'Are you sure you want to delete this message?'}
                                     {popup?.pin &&
                                         'Hey, just double checking that you want to pin this message to the current channel for posterity and greatness?'}
-                                    {popup?.unpin &&
-                                        'You sure you want to remove this pinned message?'}
+                                    {popup?.unpin && 'You sure you want to remove this pinned message?'}
                                 </div>
                             )}
 
                             {!popup?.username && !popup?.password && (
                                 <div className={styles.messagesContainer}>
-                                    <Message
-                                        message={
-                                            popup?.delete
-                                                ? popup.delete.message
-                                                : popup?.pin
-                                                ? popup.pin.message
-                                                : popup?.unpin
-                                                ? popup.unpin.message
-                                                : null
-                                        }
-                                        noInteraction={true}
+                                    <FixedMessage
+                                        message={popup.message}
+                                        pinned={false}
                                     />
                                 </div>
                             )}
@@ -206,12 +196,7 @@ const Popup = (): ReactElement => {
 
                                     <div>
                                         You can hold down shift when clicking
-                                        <strong>
-                                            {' '}
-                                            {popup?.delete
-                                                ? 'delete message'
-                                                : 'unpin message'}{' '}
-                                        </strong>
+                                        <strong> {popup?.delete ? 'delete message' : 'unpin message'} </strong>
                                         to bypass this confirmation entirely.
                                     </div>
                                 </div>
@@ -230,9 +215,7 @@ const Popup = (): ReactElement => {
                                         >
                                             Username
                                             {usernameError.length > 0 && (
-                                                <span className={styles.errorLabel}>
-                                                    - {usernameError}
-                                                </span>
+                                                <span className={styles.errorLabel}>- {usernameError}</span>
                                             )}
                                         </label>
                                         <div className={styles.inputContainer}>
@@ -265,9 +248,7 @@ const Popup = (): ReactElement => {
                                         >
                                             Current Password
                                             {passwordError.length > 0 && (
-                                                <span className={styles.errorLabel}>
-                                                    - {passwordError}
-                                                </span>
+                                                <span className={styles.errorLabel}>- {passwordError}</span>
                                             )}
                                         </label>
                                         <div className={styles.inputContainer}>
@@ -303,9 +284,7 @@ const Popup = (): ReactElement => {
                                         >
                                             Current Password
                                             {password1Error.length > 0 && (
-                                                <span className={styles.errorLabel}>
-                                                    - {password1Error}
-                                                </span>
+                                                <span className={styles.errorLabel}>- {password1Error}</span>
                                             )}
                                         </label>
                                         <div className={styles.inputContainer}>
@@ -341,9 +320,7 @@ const Popup = (): ReactElement => {
                                         >
                                             New Password
                                             {newPasswordError.length > 0 && (
-                                                <span className={styles.errorLabel}>
-                                                    - {newPasswordError}
-                                                </span>
+                                                <span className={styles.errorLabel}>- {newPasswordError}</span>
                                             )}
                                         </label>
                                         <div className={styles.inputContainer}>
@@ -375,9 +352,7 @@ const Popup = (): ReactElement => {
                                         >
                                             Confirm New Password
                                             {newPasswordError.length > 0 && (
-                                                <span className={styles.errorLabel}>
-                                                    - {newPasswordError}
-                                                </span>
+                                                <span className={styles.errorLabel}>- {newPasswordError}</span>
                                             )}
                                         </label>
                                         <div className={styles.inputContainer}>
@@ -419,11 +394,11 @@ const Popup = (): ReactElement => {
                                 }
                                 onClick={() => {
                                     if (popup?.delete) {
-                                        popup.delete.func();
+                                        deleteMessage(auth.accessToken, popup.message);
                                     } else if (popup?.pin) {
-                                        popup.pin.func();
+                                        pinMessage(auth.accessToken, popup.message);
                                     } else if (popup?.unpin) {
-                                        popup.unpin.func();
+                                        unpinMessage(auth.accessToken, popup.message);
                                     } else if (popup?.username) {
                                         if (uid.length < 2) {
                                             setUsernameError('Must be between 2 and 32 in length.');

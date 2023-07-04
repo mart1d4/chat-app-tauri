@@ -3,11 +3,11 @@
 import { useState, useEffect, useRef, useMemo, ReactElement } from 'react';
 import { getButtonColor } from '@/lib/colors/getColors';
 import useContextHook from '@/hooks/useContextHook';
+import { Avatar, Icon } from '@/app/app-components';
 import styles from './MemberList.module.css';
+import { translateCap } from '@/lib/strings';
 import { v4 as uuidv4 } from 'uuid';
 import UserItem from './UserItem';
-import Icon from '../Icon/Icon';
-import Avatar from '../Avatar/Avatar';
 
 const MemberList = ({ channel }: { channel: TChannel | null }): ReactElement => {
     const [user, setUser] = useState<null | TCleanUser>(null);
@@ -58,7 +58,7 @@ const MemberList = ({ channel }: { channel: TChannel | null }): ReactElement => 
     useEffect(() => {
         if (!user) return;
 
-        const friends = auth.user.friends?.filter((friend: TUser) => user.friendIds?.includes(friend.id));
+        const friends = auth.user.friends?.filter((friend: TCleanUser) => user.friendIds?.includes(friend.id));
         setMutualFriends(friends);
         const guilds = auth.user.guilds?.filter((guild: TGuild) => user.guildIds?.includes(guild.id));
         setMutualGuilds(guilds);
@@ -143,7 +143,7 @@ const MemberList = ({ channel }: { channel: TChannel | null }): ReactElement => 
                                 className={styles.cardAvatarStatus}
                                 onMouseEnter={(e) => {
                                     setTooltip({
-                                        text: user.status,
+                                        text: translateCap(user.status),
                                         element: e.currentTarget,
                                         gap: 5,
                                     });
@@ -296,10 +296,10 @@ const MemberList = ({ channel }: { channel: TChannel | null }): ReactElement => 
             );
         } else {
             const onlineMembers: any = channel.recipients.filter((recipient: any) =>
-                ['Online', 'Idle', 'Do_Not_Disturb'].includes(recipient.status)
+                ['ONLINE', 'IDLE', 'DO_NOT_DISTURB'].includes(recipient.status)
             );
 
-            const offlineMembers: any = channel.recipients.filter((recipient: any) => recipient.status === 'Offline');
+            const offlineMembers: any = channel.recipients.filter((recipient: any) => recipient.status === 'OFFLINE');
 
             return (
                 <aside className={styles.memberList}>

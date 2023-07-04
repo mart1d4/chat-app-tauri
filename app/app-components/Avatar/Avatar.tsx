@@ -4,23 +4,24 @@ import useContextHook from '@/hooks/useContextHook';
 import styles from './Avatar.module.css';
 import { useEffect } from 'react';
 import Image from 'next/image';
+import { translateCap } from '@/lib/strings';
 
 type Props = {
     src: string;
     alt: string;
     size: 16 | 24 | 32 | 40 | 80 | 120;
-    status?: 'Online' | 'Idle' | 'Do Not Disturb' | 'Invisible' | 'Offline' | undefined;
+    status?: EUserStatus;
     tooltip?: boolean;
     tooltipGap?: number;
     relativeSrc?: boolean;
 };
 
 const colors = {
-    Online: '#22A559',
-    Idle: '#F0B232',
-    'Do Not Disturb': '#F23F43',
-    Invisible: '#80848E',
-    Offline: '#80848E',
+    ONLINE: '#22A559',
+    IDLE: '#F0B232',
+    DO_NOT_DISTURB: '#F23F43',
+    INVISIBLE: '#80848E',
+    OFFLINE: '#80848E',
 };
 
 const rectSizes = {
@@ -89,7 +90,7 @@ const Avatar = (props: Props) => {
                     onMouseEnter={(e) => {
                         if (!props.tooltip) return;
                         setTooltip({
-                            text: props.status,
+                            text: translateCap(props.status),
                             element: e.target,
                             position: 'top',
                             gap: props.tooltipGap || 0,

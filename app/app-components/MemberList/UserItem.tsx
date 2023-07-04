@@ -5,7 +5,7 @@ import { Avatar } from '@/app/app-components';
 import { ReactElement, useRef } from 'react';
 import styles from './UserItem.module.css';
 
-const UserItem = ({ user }: { user: CleanOtherUserType }): ReactElement => {
+const UserItem = ({ user }: { user: TCleanUser }): ReactElement => {
     const { fixedLayer, setFixedLayer }: any = useContextHook({ context: 'layer' });
 
     const liRef = useRef(null);
@@ -39,8 +39,7 @@ const UserItem = ({ user }: { user: CleanOtherUserType }): ReactElement => {
                 });
             }}
             style={{
-                opacity:
-                    user.status === 'Offline' && !fixedLayer?.element === liRef.current ? 0.3 : 1,
+                opacity: user.status === 'Offline' && !fixedLayer?.element === liRef.current ? 0.3 : 1,
                 backgroundColor: fixedLayer?.element === liRef.current ? 'var(--background-5)' : '',
                 color: fixedLayer?.element === liRef.current ? 'var(--foreground-2)' : '',
             }}
@@ -64,9 +63,7 @@ const UserItem = ({ user }: { user: CleanOtherUserType }): ReactElement => {
                                 <div className={styles.nameWrapper}>{user.username}</div>
                             </div>
 
-                            {user?.customStatus && (
-                                <div className={styles.contentStatus}>{user.customStatus}</div>
-                            )}
+                            {user?.customStatus && <div className={styles.contentStatus}>{user.customStatus}</div>}
                         </div>
                     </div>
                 </div>

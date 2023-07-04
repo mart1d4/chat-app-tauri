@@ -8,11 +8,11 @@ import pusher from '@/lib/pusher/connection';
 import styles from './Channels.module.css';
 import { v4 as uuidv4 } from 'uuid';
 
-const ChannelContent = ({ channel }: { channel: ChannelType | null }): ReactElement => {
+const ChannelContent = ({ channel }: { channel: TChannel | null }): ReactElement => {
     const [edit, setEdit] = useState<MessageEditObject>({});
     const [reply, setReply] = useState<MessageReplyObject>({});
-    const [friend, setFriend] = useState<null | CleanOtherUserType>(null);
-    const [messages, setMessages] = useState<MessageType[]>([]);
+    const [friend, setFriend] = useState<null | TCleanUser>(null);
+    const [messages, setMessages] = useState<TMessage[]>([]);
     const [hasMore, setHasMore] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -138,7 +138,7 @@ const ChannelContent = ({ channel }: { channel: ChannelType | null }): ReactElem
                                             <>
                                                 {hasMore ? <MessageSkeleton /> : <FirstMessage channel={channel} />}
 
-                                                {messages.map((message: MessageType, index: number) => (
+                                                {messages.map((message: TMessage, index: number) => (
                                                     <div key={uuidv4()}>
                                                         {isNewDay(index) && (
                                                             <div className={styles.messageDivider}>
@@ -190,7 +190,7 @@ const ChannelContent = ({ channel }: { channel: ChannelType | null }): ReactElem
     );
 };
 
-const FirstMessage = ({ channel }: { channel: ChannelType }) => {
+const FirstMessage = ({ channel }: { channel: TChannel }) => {
     const { auth }: any = useContextHook({ context: 'auth' });
 
     let friend: any;

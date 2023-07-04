@@ -8,7 +8,7 @@ import styles from './Message.module.css';
 import { trimMessage } from '@/lib/strings/checks';
 
 type MessageProps = {
-    message: MessageType;
+    message: TMessage;
     large?: boolean;
     last?: boolean;
     edit?: MessageEditObject;
